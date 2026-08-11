@@ -1,24 +1,40 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { ParallaxScene, PulseLoader } from "@/components/pulse/illo/Scene";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Pulse — The Living Messenger" },
+      {
+        name: "description",
+        content:
+          "Pulse is an illustrated, motion-first messenger: expressive chats, voice notes, moods and reactions that feel alive.",
+      },
+      { property: "og:title", content: "Pulse — The Living Messenger" },
+      {
+        property: "og:description",
+        content: "An illustrated, motion-first messenger where every message feels alive.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    void navigate({ to: "/chats", replace: true });
+  }, [navigate]);
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <ParallaxScene className="min-h-screen">
+      <div className="grid min-h-screen place-items-center">
+        <PulseLoader label="Warming up Pulse…" />
+      </div>
+    </ParallaxScene>
   );
 }
