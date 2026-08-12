@@ -72,7 +72,11 @@ function ProfilePage() {
 
   const onPickPhoto = async (file: File) => {
     const problem = validateFile(file, "Photo");
-    if (problem) return toast.error(problem);
+    if (problem) {
+      toast.error(problem);
+      return;
+    }
+
     try {
       const path = await uploadMedia(user.id, file, file.name);
       await save.mutateAsync({ avatar_url: path });
