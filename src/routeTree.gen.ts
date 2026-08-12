@@ -15,6 +15,7 @@ import { Route as CallsRouteImport } from './routes/calls'
 import { Route as ChatsRouteImport } from './routes/chats'
 import { Route as ContactsRouteImport } from './routes/contacts'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as ChatsIdRouteImport } from './routes/chats_.$id'
 
@@ -48,6 +49,11 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UpdatesRoute = UpdatesRouteImport.update({
   id: '/updates',
   path: '/updates',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/chats': typeof ChatsRoute
   '/contacts': typeof ContactsRoute
   '/profile': typeof ProfileRoute
+  '/settings': typeof SettingsRoute
   '/updates': typeof UpdatesRoute
   '/chats/$id': typeof ChatsIdRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/chats': typeof ChatsRoute
   '/contacts': typeof ContactsRoute
   '/profile': typeof ProfileRoute
+  '/settings': typeof SettingsRoute
   '/updates': typeof UpdatesRoute
   '/chats/$id': typeof ChatsIdRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/chats': typeof ChatsRoute
   '/contacts': typeof ContactsRoute
   '/profile': typeof ProfileRoute
+  '/settings': typeof SettingsRoute
   '/updates': typeof UpdatesRoute
   '/chats_/$id': typeof ChatsIdRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/chats'
     | '/contacts'
     | '/profile'
+    | '/settings'
     | '/updates'
     | '/chats/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/chats'
     | '/contacts'
     | '/profile'
+    | '/settings'
     | '/updates'
     | '/chats/$id'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/chats'
     | '/contacts'
     | '/profile'
+    | '/settings'
     | '/updates'
     | '/chats_/$id'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   ChatsRoute: typeof ChatsRoute
   ContactsRoute: typeof ContactsRoute
   ProfileRoute: typeof ProfileRoute
+  SettingsRoute: typeof SettingsRoute
   UpdatesRoute: typeof UpdatesRoute
   ChatsIdRoute: typeof ChatsIdRoute
 }
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/updates': {
       id: '/updates'
       path: '/updates'
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatsRoute: ChatsRoute,
   ContactsRoute: ContactsRoute,
   ProfileRoute: ProfileRoute,
+  SettingsRoute: SettingsRoute,
   UpdatesRoute: UpdatesRoute,
   ChatsIdRoute: ChatsIdRoute,
 }
