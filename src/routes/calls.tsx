@@ -41,6 +41,7 @@ export const Route = createFileRoute("/calls")({
 
 function CallsPage() {
   const { user } = useApp();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [dialing, setDialing] = useState<{ peer: Profile; type: "voice" | "video" } | null>(null);
 
@@ -135,7 +136,7 @@ function CallsPage() {
             onMessage={() =>
               void startDirectConversation(dialing.peer.id).then((id) => {
                 setDialing(null);
-                void navigateToChat(id);
+                void navigate({ to: "/chats/$id", params: { id } });
               })
             }
           />
@@ -143,10 +144,6 @@ function CallsPage() {
       </AnimatePresence>
     </div>
   );
-}
-
-function navigateToChat(id: string) {
-  window.location.assign(`/chats/${id}`);
 }
 
 function CallRow({
