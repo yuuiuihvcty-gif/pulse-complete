@@ -36,11 +36,21 @@ type Field = "email" | "password" | "name" | "username" | null;
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { user } = useSession();
   const [mode, setMode] = useState<"in" | "up">("in");
   const [focus, setFocus] = useState<Field>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [needsConfirm, setNeedsConfirm] = useState(false);
   const [form, setForm] = useState({ email: "", password: "", name: "", username: "" });
+
+  // Session is the source of truth: as soon as one exists, go to the app.
+  useEffect(() => {
+    if (!user) return;
+    const t = setTimeout(() => void navigate({ to: "/chats", replace: true }), 450);
+    return () => clearTimeout(t);
+  }, [user, navigate]);
+
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
