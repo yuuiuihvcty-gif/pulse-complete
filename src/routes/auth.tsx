@@ -70,7 +70,7 @@ function AuthPage() {
       } else {
         const username = form.username.trim().replace(/[^a-zA-Z0-9_]/g, "").toLowerCase();
         if (!form.name.trim() || !username) throw new Error("Add your name and a username first");
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: form.email.trim(),
           password: form.password,
           options: {
@@ -79,9 +79,14 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        if (!data.session) {
+          setBusy(false);
+          setNeedsConfirm(true);
+          toast.success("Almost there — check your email to confirm your account.");
+          return;
+        }
       }
       setDone(true);
-      setTimeout(() => void navigate({ to: "/chats", replace: true }), 620);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "That didn't work. Try again?");
       setBusy(false);
@@ -89,12 +94,25 @@ function AuthPage() {
   };
 
   const google = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/chats` },
-    });
-    if (error) toast.error("Google sign-in isn't available right now");
+    if (busy) return;
+    setBusy(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/auth`,
+      });
+      if (result.error) {
+        toast.error("Google sign-in isn't available right now");
+        setBusy(false);
+        return;
+      }
+      if (result.redirected) return;
+      setDone(true);
+    } catch {
+      toast.error("Google sign-in isn't available right now");
+      setBusy(false);
+    }
   };
+
 
   return (
     <ParallaxScene className="min-h-screen" intensity={1.4}>
