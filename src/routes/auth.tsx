@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, AtSign, Check, KeyRound, Mail, User } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
+import { useSession } from "@/hooks/use-session";
 import { ParallaxScene } from "@/components/pulse/illo/Scene";
 import { BubbleObject, PulseCreature, type CreatureMood, type LookDir } from "@/components/pulse/illo/PulseCreature";
 import { SPRING, DUR, EASE } from "@/lib/motion";
@@ -34,11 +36,21 @@ type Field = "email" | "password" | "name" | "username" | null;
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { user } = useSession();
   const [mode, setMode] = useState<"in" | "up">("in");
   const [focus, setFocus] = useState<Field>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [needsConfirm, setNeedsConfirm] = useState(false);
   const [form, setForm] = useState({ email: "", password: "", name: "", username: "" });
+
+  // Session is the source of truth: as soon as one exists, go to the app.
+  useEffect(() => {
+    if (!user) return;
+    const t = setTimeout(() => void navigate({ to: "/chats", replace: true }), 450);
+    return () => clearTimeout(t);
+  }, [user, navigate]);
+
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -70,7 +82,7 @@ function AuthPage() {
       } else {
         const username = form.username.trim().replace(/[^a-zA-Z0-9_]/g, "").toLowerCase();
         if (!form.name.trim() || !username) throw new Error("Add your name and a username first");
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: form.email.trim(),
           password: form.password,
           options: {
@@ -79,9 +91,14 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        if (!data.session) {
+          setBusy(false);
+          setNeedsConfirm(true);
+          toast.success("Almost there — check your email to confirm your account.");
+          return;
+        }
       }
       setDone(true);
-      setTimeout(() => void navigate({ to: "/chats", replace: true }), 620);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "That didn't work. Try again?");
       setBusy(false);
@@ -89,12 +106,25 @@ function AuthPage() {
   };
 
   const google = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/chats` },
-    });
-    if (error) toast.error("Google sign-in isn't available right now");
+    if (busy) return;
+    setBusy(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/auth`,
+      });
+      if (result.error) {
+        toast.error("Google sign-in isn't available right now");
+        setBusy(false);
+        return;
+      }
+      if (result.redirected) return;
+      setDone(true);
+    } catch {
+      toast.error("Google sign-in isn't available right now");
+      setBusy(false);
+    }
   };
+
 
   return (
     <ParallaxScene className="min-h-screen" intensity={1.4}>
@@ -134,6 +164,14 @@ function AuthPage() {
                 : "A name, a handle, and you're alive here."}
             </p>
           </header>
+
+          {needsConfirm && (
+            <p className="mb-4 rounded-2xl border border-border bg-surface-2 p-3 text-center text-sm text-muted-foreground">
+              Check your email to confirm your account, then sign in.
+            </p>
+          )}
+
+
 
           <form onSubmit={submit} className="space-y-3">
             <AnimatePresence initial={false} mode="popLayout">
