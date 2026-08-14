@@ -165,6 +165,14 @@ function AuthPage() {
             </p>
           </header>
 
+          {needsConfirm && (
+            <p className="mb-4 rounded-2xl border border-border bg-surface-2 p-3 text-center text-sm text-muted-foreground">
+              Check your email to confirm your account, then sign in.
+            </p>
+          )}
+
+
+
           <form onSubmit={submit} className="space-y-3">
             <AnimatePresence initial={false} mode="popLayout">
               {mode === "up" && (
