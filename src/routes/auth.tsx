@@ -252,9 +252,10 @@ function AuthPage() {
               {mode === "in" ? "Create an account" : "Sign in"}
             </button>
           </p>
-        </motion.section>
+        </section>
       </main>
-    </ParallaxScene>
+    </div>
+
   );
 }
 
