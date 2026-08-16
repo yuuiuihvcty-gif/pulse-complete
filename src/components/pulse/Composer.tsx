@@ -360,7 +360,26 @@ export function Composer({
             <Send className="h-4 w-4" />
           </button>
         </motion.div>
+        {!locked && (
+          <motion.button
+            type="button"
+            aria-label="Release to send, slide up to lock"
+            onPointerMove={onMicMove}
+            onPointerUp={onMicUp}
+            onPointerCancel={onMicUp}
+            animate={{ scale: [1, 1.08, 1] }}
+            transition={{ repeat: Infinity, duration: 1.4 }}
+            className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand text-brand-foreground shadow-soft"
+          >
+            <Mic className="h-5 w-5" />
+            <span className="absolute -top-8 grid h-6 w-6 place-items-center rounded-full bg-surface-2 text-muted-foreground">
+              <Lock className="h-3.5 w-3.5" />
+            </span>
+          </motion.button>
+        )}
+        </div>
       ) : (
+
         <div className="flex items-end gap-2">
           <div className="flex min-w-0 flex-1 items-end gap-1 rounded-3xl border border-border bg-surface-2 px-2 py-1.5">
             <button
