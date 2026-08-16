@@ -15,7 +15,7 @@ import { MOODS } from "@/lib/types";
 import { SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { PageBackground } from "@/components/pulse/PageBackground";
-import bg-youBg from "@/assets/bg-you.jpeg.asset.json";
+import bgyouBg from "@/assets/bg-you.jpeg.asset.json";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -94,7 +94,7 @@ function ProfilePage() {
 
   return (
     <div className="relative min-h-screen md:flex">
-      <PageBackground src={bg-youBg.url} />
+      <PageBackground src={bgyouBg.url} />
       <SideRail />
       <div className="mx-auto w-full max-w-2xl pb-28 md:pb-10">
         <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-surface/85 px-4 pb-3 pt-5 backdrop-blur-xl">

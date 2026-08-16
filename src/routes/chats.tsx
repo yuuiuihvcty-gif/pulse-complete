@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import type { ConversationSummary } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
 import { PageBackground } from "@/components/pulse/PageBackground";
-import bg-chatsBg from "@/assets/bg-chats.jpeg.asset.json";
+import bgchatsBg from "@/assets/bg-chats.jpeg.asset.json";
 
 export const Route = createFileRoute("/chats")({
   head: () => ({
@@ -78,7 +78,7 @@ function ChatsPage() {
 
   return (
     <div className="relative min-h-screen md:flex">
-      <PageBackground src={bg-chatsBg.url} />
+      <PageBackground src={bgchatsBg.url} />
       <SideRail unread={unread} />
       <div className="relative mx-auto w-full max-w-2xl pb-24 md:pb-6">
         <header className="sticky top-0 z-30 border-b border-border bg-surface/85 px-4 pb-3 pt-5 backdrop-blur-xl">

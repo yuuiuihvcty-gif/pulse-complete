@@ -9,7 +9,7 @@ import { getProfilesByIds, listBlocked, setBlocked } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { UserSettings } from "@/lib/types";
 import { PageBackground } from "@/components/pulse/PageBackground";
-import bg-youBg from "@/assets/bg-you.jpeg.asset.json";
+import bgyouBg from "@/assets/bg-you.jpeg.asset.json";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -65,7 +65,7 @@ function SettingsPage() {
 
   return (
     <div className="relative min-h-screen">
-      <PageBackground src={bg-youBg.url} />
+      <PageBackground src={bgyouBg.url} />
       <div className="mx-auto w-full max-w-2xl pb-16">
         <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-border bg-surface/85 px-2 pb-3 pt-4 backdrop-blur-xl">
           <Link
