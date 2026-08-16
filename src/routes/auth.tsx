@@ -10,6 +10,8 @@ import { ParallaxScene } from "@/components/pulse/illo/Scene";
 import { BubbleObject, PulseCreature, type CreatureMood, type LookDir } from "@/components/pulse/illo/PulseCreature";
 import { SPRING, DUR, EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import { PageBackground } from "@/components/pulse/PageBackground";
+import bgauthBg from "@/assets/bg-auth.jpeg.asset.json";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
