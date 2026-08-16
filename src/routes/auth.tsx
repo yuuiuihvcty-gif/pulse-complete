@@ -6,9 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useSession } from "@/hooks/use-session";
-import { ParallaxScene } from "@/components/pulse/illo/Scene";
-import { BubbleObject, PulseCreature, type CreatureMood, type LookDir } from "@/components/pulse/illo/PulseCreature";
-import { SPRING, DUR, EASE } from "@/lib/motion";
+import { SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { PageBackground } from "@/components/pulse/PageBackground";
 import bgauthBg from "@/assets/bg-auth.jpeg.asset.json";
@@ -56,19 +54,6 @@ function AuthPage() {
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  const mood: CreatureMood = done
-    ? "celebrate"
-    : focus === "password"
-      ? "shy"
-      : busy
-        ? "typing"
-        : focus
-          ? "happy"
-          : "wave";
-
-  const look: LookDir =
-    focus === "email" || focus === "name" ? "down" : focus === "username" ? "right" : "center";
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
