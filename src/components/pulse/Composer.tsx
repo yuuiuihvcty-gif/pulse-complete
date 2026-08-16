@@ -305,17 +305,42 @@ export function Composer({
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-3 rounded-full border border-border bg-surface-2 px-4 py-2.5"
         >
-          <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-destructive" />
+          <span
+            className={cn(
+              "h-2.5 w-2.5 rounded-full bg-destructive",
+              paused ? "opacity-40" : "animate-pulse",
+            )}
+          />
           <span className="text-sm font-medium tabular-nums">{duration(elapsed)}</span>
-          <span className="flex h-6 flex-1 items-end gap-[3px] overflow-hidden">
-            {Array.from({ length: 24 }).map((_, i) => (
-              <span
-                key={i}
-                className="w-[3px] flex-1 rounded-full bg-brand animate-bars"
-                style={{ animationDelay: `${(i % 8) * 0.09}s`, height: "100%" }}
-              />
-            ))}
-          </span>
+          {!locked ? (
+            <span
+              className="flex-1 truncate text-center text-xs text-muted-foreground"
+              style={{ transform: `translateX(${slide / 3}px)`, opacity: 1 - Math.min(0.8, -slide / 140) }}
+            >
+              ‹ Slide to cancel · slide up to lock
+            </span>
+          ) : (
+            <span className="flex h-6 flex-1 items-center gap-[3px] overflow-hidden" aria-hidden>
+              {(levels.length ? levels : [0.05]).slice(-40).map((v, i) => (
+                <span
+                  key={i}
+                  className="w-[3px] flex-1 rounded-full bg-brand"
+                  style={{ height: `${Math.max(12, v * 100)}%` }}
+                />
+              ))}
+            </span>
+          )}
+          {locked && (
+            <button
+              type="button"
+              aria-label={paused ? "Resume recording" : "Pause recording"}
+              onClick={togglePause}
+              className="grid h-9 w-9 place-items-center rounded-full bg-secondary press"
+            >
+              {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+            </button>
+          )}
+
           <button
             type="button"
             aria-label="Cancel recording"
