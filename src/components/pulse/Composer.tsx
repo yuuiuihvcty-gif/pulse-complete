@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Camera, Mic, Paperclip, Send, Smile, Trash2, X } from "lucide-react";
+import { Camera, Lock, Mic, Paperclip, Pause, Play, Send, Smile, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { duration } from "@/lib/format";
@@ -407,8 +407,12 @@ export function Composer({
           <motion.button
             type="button"
             layout
-            aria-label={hasText ? "Send message" : "Record voice message"}
-            onClick={() => (hasText ? submit() : void startRecording())}
+            aria-label={hasText ? "Send message" : "Hold to record a voice message"}
+            onClick={() => hasText && submit()}
+            onPointerDown={onMicDown}
+            onPointerMove={onMicMove}
+            onPointerUp={onMicUp}
+            onPointerCancel={onMicUp}
             whileTap={{ scale: 0.9 }}
             transition={{ type: "spring", stiffness: 480, damping: 24 }}
             className={cn(
