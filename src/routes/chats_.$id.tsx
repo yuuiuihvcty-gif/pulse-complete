@@ -20,6 +20,8 @@ import { SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { Message, Reaction } from "@/lib/types";
 import {
+import { PageBackground } from "@/components/pulse/PageBackground";
+import bg-chatBg from "@/assets/bg-chat.jpeg.asset.json";
   deleteMessage,
   editMessage,
   getConversation,
@@ -254,7 +256,8 @@ function Thread() {
         : "";
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-background">
+    <div className="relative flex h-[100dvh] flex-col">
+      <PageBackground src={bg-chatBg.url} />
       {/* HEADER — shared layout animation from the chat list row */}
       <header className="z-30 flex items-center gap-3 border-b border-border bg-surface/90 px-2 py-2 backdrop-blur-xl">
         <button
