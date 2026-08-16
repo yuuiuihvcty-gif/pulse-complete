@@ -14,6 +14,8 @@ import { chatListTime } from "@/lib/format";
 import { SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { CallRecord, Profile } from "@/lib/types";
+import { PageBackground } from "@/components/pulse/PageBackground";
+import bgcallsBg from "@/assets/bg-calls.jpeg.asset.json";
 
 export const Route = createFileRoute("/calls")({
   head: () => ({
@@ -72,7 +74,8 @@ function CallsPage() {
   const peers = history.data?.profiles ?? new Map<string, Profile>();
 
   return (
-    <div className="min-h-screen bg-background md:flex">
+    <div className="relative min-h-screen md:flex">
+      <PageBackground src={bgcallsBg.url} />
       <SideRail />
       <div className="mx-auto w-full max-w-2xl pb-24 md:pb-6">
         <header className="sticky top-0 z-30 border-b border-border bg-surface/85 px-4 pb-3 pt-5 backdrop-blur-xl">

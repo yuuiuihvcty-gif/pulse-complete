@@ -16,6 +16,8 @@ import { chatListTime } from "@/lib/format";
 import { SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { Profile, Story } from "@/lib/types";
+import { PageBackground } from "@/components/pulse/PageBackground";
+import bgupdatesBg from "@/assets/bg-updates.jpeg.asset.json";
 
 export const Route = createFileRoute("/updates")({
   head: () => ({
@@ -111,7 +113,8 @@ function UpdatesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background md:flex">
+    <div className="relative min-h-screen md:flex">
+      <PageBackground src={bgupdatesBg.url} />
       <SideRail />
       <div className="mx-auto w-full max-w-2xl pb-24 md:pb-6">
         <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-surface/85 px-4 pb-3 pt-5 backdrop-blur-xl">

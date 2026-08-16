@@ -18,6 +18,8 @@ import {
 } from "@/lib/api";
 import { SPRING } from "@/lib/motion";
 import type { Profile } from "@/lib/types";
+import { PageBackground } from "@/components/pulse/PageBackground";
+import bgcontactsBg from "@/assets/bg-contacts.jpeg.asset.json";
 
 export const Route = createFileRoute("/contacts")({
   head: () => ({
@@ -105,7 +107,8 @@ function ContactsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background md:flex">
+    <div className="relative min-h-screen md:flex">
+      <PageBackground src={bgcontactsBg.url} />
       <SideRail />
       <div className="mx-auto w-full max-w-2xl pb-24 md:pb-6">
         <header className="sticky top-0 z-30 border-b border-border bg-surface/85 px-4 pb-3 pt-5 backdrop-blur-xl">
