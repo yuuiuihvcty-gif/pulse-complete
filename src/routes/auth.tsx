@@ -127,33 +127,12 @@ function AuthPage() {
 
 
   return (
-    <ParallaxScene className="min-h-screen" intensity={1.4}>
+    <div className="relative min-h-screen">
+      <PageBackground src={bgauthBg.url} />
       <main className="relative mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-5 py-10">
-        {/* FOREGROUND — the Pulse creature reacting to the form */}
-        <div className="relative mx-auto mb-[-26px] h-44 w-52">
-          <BubbleObject className="absolute -left-6 top-0 w-16" tone="cyan" delay={0.3} />
-          <BubbleObject className="absolute -right-4 top-6 w-12" tone="orchid" delay={1.1} />
-          <div className="absolute inset-x-8 bottom-0 top-6">
-            <PulseCreature mood={mood} look={look} />
-          </div>
-          <AnimatePresence>
-            {done && (
-              <motion.span
-                initial={{ scale: 0, opacity: 0.9 }}
-                animate={{ scale: 3.2, opacity: 0 }}
-                transition={{ duration: DUR.cinematic, ease: EASE }}
-                className="absolute inset-x-10 bottom-6 top-10 rounded-full border-4 border-brand"
-              />
-            )}
-          </AnimatePresence>
-        </div>
+        {/* UI — authentication panel over the illustrated background */}
+        <section className="relative rounded-[28px] border border-border bg-surface/85 p-5 shadow-float backdrop-blur-xl">
 
-        {/* UI — authentication panel integrated in the illustrated world */}
-        <motion.section
-          layout
-          transition={SPRING.settle}
-          className="relative rounded-[28px] border border-border bg-surface/85 p-5 shadow-float backdrop-blur-xl"
-        >
           <header className="mb-5 text-center">
             <h1 className="font-display text-[32px] font-bold leading-tight tracking-tight">
               {mode === "in" ? "Welcome back" : "Make your Pulse"}
