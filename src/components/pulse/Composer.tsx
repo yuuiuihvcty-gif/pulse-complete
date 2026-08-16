@@ -300,11 +300,13 @@ export function Composer({
       </AnimatePresence>
 
       {recording ? (
+        <div className="flex items-center gap-2">
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 rounded-full border border-border bg-surface-2 px-4 py-2.5"
+          className="flex min-w-0 flex-1 items-center gap-3 rounded-full border border-border bg-surface-2 px-4 py-2.5"
         >
+
           <span
             className={cn(
               "h-2.5 w-2.5 rounded-full bg-destructive",
