@@ -42,11 +42,18 @@ export function Composer({
   const [emoji, setEmoji] = useState(false);
   const [recording, setRecording] = useState(false);
   const [locked, setLocked] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [levels, setLevels] = useState<number[]>([]);
+  const [slide, setSlide] = useState(0);
   const recorder = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
   const cancelled = useRef(false);
   const timer = useRef<number | null>(null);
+  const raf = useRef<number | null>(null);
+  const audioCtx = useRef<AudioContext | null>(null);
+  const startPoint = useRef<{ x: number; y: number } | null>(null);
+  const lockedRef = useRef(false);
   const textarea = useRef<HTMLTextAreaElement | null>(null);
   const fileInput = useRef<HTMLInputElement | null>(null);
   const cameraInput = useRef<HTMLInputElement | null>(null);
@@ -77,9 +84,14 @@ export function Composer({
   const stopTimer = () => {
     if (timer.current) window.clearInterval(timer.current);
     timer.current = null;
+    if (raf.current) cancelAnimationFrame(raf.current);
+    raf.current = null;
+    void audioCtx.current?.close().catch(() => {});
+    audioCtx.current = null;
   };
 
   const startRecording = async () => {
+    if (recorder.current) return;
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
       toast.error("Voice recording isn't supported on this device");
       return;
@@ -96,7 +108,11 @@ export function Composer({
         const secs = elapsedRef.current;
         setRecording(false);
         setLocked(false);
+        lockedRef.current = false;
+        setPaused(false);
         setElapsed(0);
+        setLevels([]);
+        setSlide(0);
         onActivity("stop");
         if (cancelled.current || secs < 1) return;
         const blob = new Blob(chunks.current, { type: rec.mimeType || "audio/webm" });
@@ -111,8 +127,40 @@ export function Composer({
       recorder.current = rec;
       setRecording(true);
       setElapsed(0);
+      setLevels([]);
       onActivity("recording");
-      timer.current = window.setInterval(() => setElapsed((e) => e + 1), 1000);
+      if (navigator.vibrate) navigator.vibrate(12);
+      timer.current = window.setInterval(() => {
+        if (recorder.current?.state === "recording") setElapsed((e) => e + 1);
+      }, 1000);
+
+      // Live amplitude meter — real waveform, not a fake animation
+      try {
+        const Ctx =
+          window.AudioContext ??
+          (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (Ctx) {
+          const ctx = new Ctx();
+          audioCtx.current = ctx;
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 512;
+          ctx.createMediaStreamSource(stream).connect(analyser);
+          const buf = new Uint8Array(analyser.frequencyBinCount);
+          let last = 0;
+          const tick = (t: number) => {
+            raf.current = requestAnimationFrame(tick);
+            if (t - last < 90) return;
+            last = t;
+            analyser.getByteTimeDomainData(buf);
+            let peak = 0;
+            for (const v of buf) peak = Math.max(peak, Math.abs(v - 128) / 128);
+            setLevels((l) => [...l.slice(-39), Math.min(1, peak * 2.2)]);
+          };
+          raf.current = requestAnimationFrame(tick);
+        }
+      } catch {
+        /* meter is optional */
+      }
     } catch {
       toast.error("Microphone permission is needed to record");
     }
@@ -121,14 +169,61 @@ export function Composer({
   const elapsedRef = useRef(0);
   useEffect(() => {
     elapsedRef.current = elapsed;
-    if (recording) onActivity("recording");
-  }, [elapsed, recording, onActivity]);
+    if (recording && !paused) onActivity("recording");
+  }, [elapsed, recording, paused, onActivity]);
 
   const finishRecording = (cancel: boolean) => {
     cancelled.current = cancel;
     recorder.current?.stop();
     recorder.current = null;
   };
+
+  const togglePause = () => {
+    const rec = recorder.current;
+    if (!rec) return;
+    if (rec.state === "recording") {
+      rec.pause();
+      setPaused(true);
+      onActivity("stop");
+    } else if (rec.state === "paused") {
+      rec.resume();
+      setPaused(false);
+      onActivity("recording");
+    }
+  };
+
+  // Press-and-hold gestures: slide left to cancel, slide up to lock hands-free.
+  const onMicDown = (e: React.PointerEvent) => {
+    if (hasText) return;
+    startPoint.current = { x: e.clientX, y: e.clientY };
+    void startRecording();
+  };
+
+  const onMicMove = (e: React.PointerEvent) => {
+    if (!startPoint.current || lockedRef.current) return;
+    const dx = e.clientX - startPoint.current.x;
+    const dy = e.clientY - startPoint.current.y;
+    setSlide(Math.min(0, dx));
+    if (dy < -64) {
+      lockedRef.current = true;
+      setLocked(true);
+      setSlide(0);
+      if (navigator.vibrate) navigator.vibrate(10);
+    } else if (dx < -110) {
+      startPoint.current = null;
+      finishRecording(true);
+    }
+  };
+
+  const onMicUp = () => {
+    if (!startPoint.current) return;
+    startPoint.current = null;
+    setSlide(0);
+    if (lockedRef.current) return; // hands-free: keep recording
+    finishRecording(false);
+  };
+
+
 
   const handleFiles = (files: FileList | null, forceKind?: "image" | "video") => {
     const file = files?.[0];
