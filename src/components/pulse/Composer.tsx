@@ -192,6 +192,21 @@ export function Composer({
     }
   };
 
+  // Keep the hold gesture alive even if the pointer leaves the mic button.
+  useEffect(() => {
+    if (!recording || locked) return;
+    const move = (e: PointerEvent) => onMicMove(e);
+    const up = () => onMicUp();
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+    };
+  });
+
   // Press-and-hold gestures: slide left to cancel, slide up to lock hands-free.
   const onMicDown = (e: React.PointerEvent) => {
     if (hasText) return;
@@ -199,7 +214,7 @@ export function Composer({
     void startRecording();
   };
 
-  const onMicMove = (e: React.PointerEvent) => {
+  const onMicMove = (e: { clientX: number; clientY: number }) => {
     if (!startPoint.current || lockedRef.current) return;
     const dx = e.clientX - startPoint.current.x;
     const dy = e.clientY - startPoint.current.y;
