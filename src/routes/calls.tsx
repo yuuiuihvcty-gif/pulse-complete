@@ -1,15 +1,14 @@
-import { useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AnimatePresence, motion } from "motion/react";
-import { PhoneCall, PhoneIncoming, PhoneMissed, PhoneOutgoing, Video, X } from "lucide-react";
-import { toast } from "sonner";
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { motion } from "motion/react";
+import { PhoneCall, PhoneIncoming, PhoneMissed, PhoneOutgoing, Video } from "lucide-react";
 import { AppShell } from "@/components/pulse/AppShell";
 import { BottomNav, SideRail } from "@/components/pulse/Navigation";
 import { PulseAvatar } from "@/components/pulse/PulseAvatar";
 import { EmptyState, ListSkeleton } from "@/components/pulse/EmptyState";
 import { useApp } from "@/lib/app-context";
-import { listCalls, listContacts, logCall, startDirectConversation } from "@/lib/api";
+import { useCall } from "@/lib/calls/CallProvider";
+import { listCalls, listContacts } from "@/lib/api";
 import { chatListTime } from "@/lib/format";
 import { SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -43,32 +42,13 @@ export const Route = createFileRoute("/calls")({
 
 function CallsPage() {
   const { user } = useApp();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [dialing, setDialing] = useState<{ peer: Profile; type: "voice" | "video" } | null>(null);
+  const { startCall } = useCall();
 
   const history = useQuery({ queryKey: ["calls", user.id], queryFn: () => listCalls(user.id) });
   const contacts = useQuery({
     queryKey: ["contacts", user.id],
     queryFn: () => listContacts(user.id),
   });
-
-  const endCall = async (status: "answered" | "declined", seconds: number) => {
-    if (!dialing) return;
-    try {
-      await logCall({
-        callerId: user.id,
-        calleeId: dialing.peer.id,
-        type: dialing.type,
-        status,
-        durationSeconds: seconds,
-      });
-      void queryClient.invalidateQueries({ queryKey: ["calls", user.id] });
-    } catch {
-      toast.error("Couldn't save that call");
-    }
-    setDialing(null);
-  };
 
   const calls = history.data?.calls ?? [];
   const peers = history.data?.profiles ?? new Map<string, Profile>();
@@ -93,7 +73,7 @@ function CallsPage() {
                 <li key={p.id} className="w-20 shrink-0 text-center">
                   <button
                     type="button"
-                    onClick={() => setDialing({ peer: p, type: "voice" })}
+                    onClick={() => void startCall(p, "voice")}
                     className="flex w-full flex-col items-center gap-1.5 press"
                   >
                     <PulseAvatar profile={p} size="lg" showPresence />
@@ -121,30 +101,13 @@ function CallsPage() {
                 call={c}
                 me={user.id}
                 peer={peers.get(c.caller_id === user.id ? c.callee_id : c.caller_id) ?? null}
-                onCall={(peer, type) => setDialing({ peer, type })}
+                onCall={(peer, type) => void startCall(peer, type, c.conversation_id ?? undefined)}
               />
             ))}
           </ul>
         )}
       </div>
       <BottomNav />
-
-      <AnimatePresence>
-        {dialing && (
-          <CallSheet
-            peer={dialing.peer}
-            type={dialing.type}
-            onSwitchType={(type) => setDialing({ peer: dialing.peer, type })}
-            onEnd={(status, seconds) => void endCall(status, seconds)}
-            onMessage={() =>
-              void startDirectConversation(dialing.peer.id).then((id) => {
-                setDialing(null);
-                void navigate({ to: "/chats/$id", params: { id } });
-              })
-            }
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }
@@ -161,8 +124,7 @@ function CallRow({
   onCall: (peer: Profile, type: "voice" | "video") => void;
 }) {
   const outgoing = call.caller_id === me;
-  const Icon =
-    call.status === "missed" ? PhoneMissed : outgoing ? PhoneOutgoing : PhoneIncoming;
+  const Icon = call.status === "missed" ? PhoneMissed : outgoing ? PhoneOutgoing : PhoneIncoming;
 
   return (
     <motion.li
@@ -216,69 +178,4 @@ function formatDuration(seconds: number) {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return `${m}:${String(s).padStart(2, "0")}`;
-}
-
-function CallSheet({
-  peer,
-  type,
-  onSwitchType,
-  onEnd,
-  onMessage,
-}: {
-  peer: Profile;
-  type: "voice" | "video";
-  onSwitchType: (type: "voice" | "video") => void;
-  onEnd: (status: "answered" | "declined", seconds: number) => void;
-  onMessage: () => void;
-}) {
-  const [started] = useState(() => Date.now());
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      role="dialog"
-      aria-label={`Calling ${peer.display_name}`}
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-background/95 p-6 backdrop-blur-xl"
-    >
-      <PulseAvatar profile={peer} size="xl" ring="brand" showPresence />
-      <div className="text-center">
-        <p className="font-display text-2xl font-semibold">{peer.display_name}</p>
-        <p className="text-sm text-muted-foreground">
-          {peer.is_online ? "Ringing…" : "They're offline — we'll log a missed call"}
-        </p>
-      </div>
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => onSwitchType(type === "voice" ? "video" : "voice")}
-          className="grid h-12 w-12 place-items-center rounded-full border border-border press hover:bg-surface-2"
-          aria-label="Switch call type"
-        >
-          {type === "voice" ? <Video className="h-5 w-5" /> : <PhoneCall className="h-5 w-5" />}
-        </button>
-        <button
-          type="button"
-          onClick={onMessage}
-          className="h-12 rounded-full border border-border px-5 text-sm font-semibold press hover:bg-surface-2"
-        >
-          Message instead
-        </button>
-        <button
-          type="button"
-          onClick={() =>
-            onEnd(
-              peer.is_online ? "answered" : "declined",
-              Math.round((Date.now() - started) / 1000),
-            )
-          }
-          className="grid h-12 w-12 place-items-center rounded-full bg-coral text-background press"
-          aria-label="End call"
-        >
-          <X className="h-5 w-5" />
-        </button>
-      </div>
-    </motion.div>
-  );
 }

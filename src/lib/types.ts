@@ -63,10 +63,37 @@ export type CallRecord = {
   id: string;
   caller_id: string;
   callee_id: string;
+  conversation_id?: string | null;
   type: "voice" | "video";
   status: "missed" | "answered" | "declined";
   duration_seconds: number;
   created_at: string;
+};
+
+export type CallSessionStatus =
+  | "ringing"
+  | "accepted"
+  | "connecting"
+  | "connected"
+  | "declined"
+  | "cancelled"
+  | "missed"
+  | "failed"
+  | "ended";
+
+export type CallSession = {
+  id: string;
+  conversation_id: string;
+  caller_id: string;
+  callee_id: string;
+  type: "voice" | "video";
+  status: CallSessionStatus;
+  created_at: string;
+  accepted_at: string | null;
+  connected_at: string | null;
+  ended_at: string | null;
+  expires_at: string;
+  last_heartbeat_at: string;
 };
 
 export type UserSettings = {

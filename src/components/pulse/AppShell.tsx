@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useSession } from "@/hooks/use-session";
 import { AppDataProvider } from "@/lib/app-context";
+import { CallProvider } from "@/lib/calls/CallProvider";
 import { ParallaxScene, PulseLoader } from "@/components/pulse/illo/Scene";
 
 /** Session gate + shared data provider for every signed-in Pulse screen. */
@@ -23,5 +24,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   }
 
-  return <AppDataProvider user={user}>{children}</AppDataProvider>;
+  return (
+    <AppDataProvider user={user}>
+      <CallProvider>{children}</CallProvider>
+    </AppDataProvider>
+  );
 }

@@ -1,5 +1,20 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
+type CallSessionRow = {
+  id: string;
+  conversation_id: string;
+  caller_id: string;
+  callee_id: string;
+  type: string;
+  status: string;
+  created_at: string;
+  accepted_at: string | null;
+  connected_at: string | null;
+  ended_at: string | null;
+  expires_at: string;
+  last_heartbeat_at: string;
+};
+
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -519,6 +534,44 @@ export type Database = {
       };
       owns_conversation: {
         Args: { _conversation_id: string; _user_id: string };
+        Returns: boolean;
+      };
+      create_call_session: {
+        Args: { _conversation_id: string; _callee: string; _type: string };
+        Returns: string;
+      };
+      get_call_session: {
+        Args: { _call_id: string };
+        Returns: CallSessionRow[];
+      };
+      list_active_call_sessions: {
+        Args: Record<PropertyKey, never>;
+        Returns: CallSessionRow[];
+      };
+      accept_call_session: {
+        Args: { _call_id: string };
+        Returns: CallSessionRow[];
+      };
+      set_call_session_status: {
+        Args: { _call_id: string; _status: string };
+        Returns: CallSessionRow[];
+      };
+      finish_call_session: {
+        Args: { _call_id: string; _status: string; _duration_seconds?: number };
+        Returns: Array<{
+          id: string;
+          caller_id: string;
+          callee_id: string;
+          conversation_id: string | null;
+          type: string;
+          status: string;
+          duration_seconds: number;
+          created_at: string;
+          call_session_id: string | null;
+        }>;
+      };
+      heartbeat_call_session: {
+        Args: { _call_id: string };
         Returns: boolean;
       };
     };

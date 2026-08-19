@@ -1,6 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import type {
   CallRecord,
+  CallSession,
+  CallSessionStatus,
   ConversationSummary,
   Message,
   MessageType,
@@ -488,6 +490,63 @@ export async function markNotificationsRead(me: string) {
 }
 
 /* ---------------- calls ---------------- */
+
+export async function createCallSession(input: {
+  conversationId: string;
+  calleeId: string;
+  type: "voice" | "video";
+}) {
+  const data = unwrap(
+    await supabase.rpc("create_call_session", {
+      _conversation_id: input.conversationId,
+      _callee: input.calleeId,
+      _type: input.type,
+    }),
+  );
+  return data as string;
+}
+
+export async function getCallSession(id: string) {
+  const rows = (unwrap(await supabase.rpc("get_call_session", { _call_id: id })) ??
+    []) as CallSession[];
+  return rows[0] ?? null;
+}
+
+export async function listActiveCallSessions() {
+  return (unwrap(await supabase.rpc("list_active_call_sessions")) ?? []) as CallSession[];
+}
+
+export async function acceptCallSession(id: string) {
+  const rows = (unwrap(await supabase.rpc("accept_call_session", { _call_id: id })) ??
+    []) as CallSession[];
+  return rows[0] ?? null;
+}
+
+export async function setCallSessionStatus(id: string, status: "connecting" | "connected") {
+  const rows = (unwrap(
+    await supabase.rpc("set_call_session_status", { _call_id: id, _status: status }),
+  ) ?? []) as CallSession[];
+  return rows[0] ?? null;
+}
+
+export async function finishCallSession(
+  id: string,
+  status: Extract<CallSessionStatus, "declined" | "cancelled" | "missed" | "failed" | "ended">,
+  durationSeconds = 0,
+) {
+  const rows = (unwrap(
+    await supabase.rpc("finish_call_session", {
+      _call_id: id,
+      _status: status,
+      _duration_seconds: durationSeconds,
+    }),
+  ) ?? []) as CallRecord[];
+  return rows[0] ?? null;
+}
+
+export async function heartbeatCallSession(id: string) {
+  return Boolean(unwrap(await supabase.rpc("heartbeat_call_session", { _call_id: id })));
+}
 
 export async function listCalls(me: string) {
   const rows = (unwrap(
