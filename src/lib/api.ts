@@ -15,6 +15,36 @@ import type {
 } from "@/lib/types";
 
 const PROFILE_COLS = "id,ide,username,display_name,avatar_url,about,phone,mood,is_online,last_seen";
+const PROFILE_COLS_LEGACY = "id,username,display_name,avatar_url,about,phone,mood,is_online,last_seen";
+
+type ApiError = { message: string } | null;
+type ProfileQueryResult = { data: unknown; error: ApiError };
+
+function missingIdeColumn(error: ApiError) {
+  return Boolean(error?.message && /profiles\.ide|column .*ide does not exist/i.test(error.message));
+}
+
+async function queryProfiles(
+  build: (columns: string) => PromiseLike<ProfileQueryResult>,
+): Promise<ProfileQueryResult> {
+  const result = await build(PROFILE_COLS);
+  return result.error && missingIdeColumn(result.error) ? build(PROFILE_COLS_LEGACY) : result;
+}
+
+function normalizeProfileRows(data: unknown): Profile[] {
+  return ((data as Array<Partial<Profile>> | null) ?? []).map((row) => ({
+    id: row.id ?? "",
+    ide: row.ide ?? "",
+    username: row.username ?? "",
+    display_name: row.display_name ?? row.username ?? "Pulse user",
+    avatar_url: row.avatar_url ?? null,
+    about: row.about ?? null,
+    phone: row.phone ?? null,
+    mood: row.mood ?? null,
+    is_online: row.is_online ?? false,
+    last_seen: row.last_seen ?? new Date(0).toISOString(),
+  }));
+}
 
 function unwrap<T>(res: { data: T | null; error: { message: string } | null }): T {
   if (res.error) throw new Error(res.error.message);
@@ -26,20 +56,28 @@ function unwrap<T>(res: { data: T | null; error: { message: string } | null }): 
 export async function getProfilesByIds(ids: string[]): Promise<Profile[]> {
   const unique = [...new Set(ids)];
   if (unique.length === 0) return [];
-  return (unwrap(await supabase.from("profiles").select(PROFILE_COLS).in("id", unique)) ??
-    []) as Profile[];
+  const result = await queryProfiles((columns) =>
+    supabase.from("profiles").select(columns).in("id", unique),
+  );
+  if (result.error) throw new Error(result.error.message);
+  return normalizeProfileRows(result.data);
 }
 
 export async function getProfile(id: string) {
-  return unwrap(
-    await supabase.from("profiles").select(PROFILE_COLS).eq("id", id).maybeSingle(),
-  ) as Profile | null;
+  const result = await queryProfiles((columns) =>
+    supabase.from("profiles").select(columns).eq("id", id).maybeSingle(),
+  );
+  if (result.error) throw new Error(result.error.message);
+  const rows = normalizeProfileRows(result.data ? [result.data] : []);
+  return rows[0] ?? null;
 }
 
 export async function updateProfile(id: string, patch: Partial<Profile>) {
-  return unwrap(
-    await supabase.from("profiles").update(patch).eq("id", id).select(PROFILE_COLS).single(),
-  ) as Profile;
+  const result = await queryProfiles((columns) =>
+    supabase.from("profiles").update(patch).eq("id", id).select(columns).single(),
+  );
+  if (result.error) throw new Error(result.error.message);
+  return normalizeProfileRows(result.data ? [result.data] : [])[0];
 }
 
 export async function getSettings(userId: string) {
@@ -351,15 +389,24 @@ export async function searchProfiles(term: string, me: string) {
   if (!safeTerm) return [];
   const filters = [`display_name.ilike.%${safeTerm}%`, `username.ilike.%${safeTerm}%`];
   if (/^\d{6}$/.test(safeTerm)) filters.push(`ide.eq.${safeTerm}`);
-  const rows = (unwrap(
-    await supabase
+  const withIde = await supabase
+    .from("profiles")
+    .select(PROFILE_COLS)
+    .or(filters.join(","))
+    .neq("id", me)
+    .limit(20);
+  if (withIde.error && missingIdeColumn(withIde.error)) {
+    const legacy = await supabase
       .from("profiles")
-      .select(PROFILE_COLS)
-      .or(filters.join(","))
+      .select(PROFILE_COLS_LEGACY)
+      .or([`display_name.ilike.%${safeTerm}%`, `username.ilike.%${safeTerm}%`].join(","))
       .neq("id", me)
-      .limit(20),
-  ) ?? []) as Profile[];
-  return rows;
+      .limit(20);
+    if (legacy.error) throw new Error(legacy.error.message);
+    return normalizeProfileRows(legacy.data);
+  }
+  if (withIde.error) throw new Error(withIde.error.message);
+  return normalizeProfileRows(withIde.data);
 }
 
 export async function listBlocked(me: string) {
