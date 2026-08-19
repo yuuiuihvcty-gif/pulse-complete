@@ -387,14 +387,59 @@ export function Composer({
               )}
             </div>
             {locked && (
-              <button
+              <motion.button
                 type="button"
                 aria-label={paused ? "Resume recording" : "Pause recording"}
+                aria-pressed={paused}
+                title={paused ? "Resume recording" : "Pause recording"}
                 onClick={togglePause}
-                className="grid h-9 w-9 place-items-center rounded-[10px] bg-white/[0.08] press"
+                initial={false}
+                animate={{
+                  scale: paused ? [1, 1.06, 1] : 1,
+                  backgroundColor: paused ? "rgba(56, 207, 255, 0.16)" : "rgba(255, 255, 255, 0.08)",
+                }}
+                transition={{
+                  scale: paused
+                    ? { repeat: Infinity, duration: 1.8, ease: "easeInOut" }
+                    : { duration: 0.2, ease: "easeOut" },
+                  backgroundColor: { duration: 0.25, ease: "easeOut" },
+                }}
+                whileTap={{ scale: 0.84, rotate: paused ? -5 : 5 }}
+                className="relative grid h-9 w-9 place-items-center overflow-hidden rounded-[10px] border border-white/10 text-cyan press"
               >
-                {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-              </button>
+                {paused && (
+                  <motion.span
+                    aria-hidden
+                    className="absolute inset-0 rounded-[10px] border border-cyan/60"
+                    initial={{ opacity: 0, scale: 0.7 }}
+                    animate={{ opacity: [0.15, 0.7, 0.15], scale: [0.82, 1.08, 0.82] }}
+                    transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+                  />
+                )}
+                <AnimatePresence mode="wait" initial={false}>
+                  {paused ? (
+                    <motion.span
+                      key="resume"
+                      initial={{ opacity: 0, scale: 0.45, rotate: -90 }}
+                      animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                      exit={{ opacity: 0, scale: 0.45, rotate: 90 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                    >
+                      <Play className="relative z-10 h-4 w-4 fill-current" />
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="pause"
+                      initial={{ opacity: 0, scale: 0.45, rotate: 90 }}
+                      animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                      exit={{ opacity: 0, scale: 0.45, rotate: -90 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                    >
+                      <Pause className="relative z-10 h-4 w-4" />
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
             )}
 
             <button
