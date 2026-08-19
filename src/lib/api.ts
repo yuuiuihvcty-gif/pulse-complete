@@ -448,8 +448,7 @@ export async function listStories() {
   ) ?? []) as Story[];
   const userIds = [...new Set(rows.map((r) => r.user_id))];
   if (userIds.length === 0) return { stories: [] as Story[], authors: new Map<string, Profile>() };
-  const authors = (unwrap(await supabase.from("profiles").select(PROFILE_COLS).in("id", userIds)) ??
-    []) as Profile[];
+  const authors = await getProfilesByIds(userIds);
   return { stories: rows, authors: new Map(authors.map((a) => [a.id, a])) };
 }
 
@@ -659,10 +658,7 @@ export async function listCalls(me: string) {
       .limit(50),
   ) ?? []) as CallRecord[];
   const ids = [...new Set(rows.flatMap((r) => [r.caller_id, r.callee_id]))].filter((i) => i !== me);
-  const profiles = ids.length
-    ? ((unwrap(await supabase.from("profiles").select(PROFILE_COLS).in("id", ids)) ??
-        []) as Profile[])
-    : [];
+  const profiles = ids.length ? await getProfilesByIds(ids) : [];
   return { calls: rows, profiles: new Map(profiles.map((p) => [p.id, p])) };
 }
 
