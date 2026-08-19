@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "build:pages": "vite build --config vite.pages.config.ts --configLoader runner",
+    "build:vercel": "vite build --config vite.vercel.config.ts --configLoader runner",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write ."
