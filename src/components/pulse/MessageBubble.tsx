@@ -206,7 +206,7 @@ export function MessageBubble({
           className={cn(
             "relative px-3.5 py-2.5 shadow-bubble",
             mine
-              ? "bubble-out-shape bg-bubble-out text-bubble-out-foreground"
+              ? "bubble-out-shape bg-bubble-out text-bubble-out-foreground shadow-[0_12px_28px_-16px_rgba(143,104,255,0.95)]"
               : "bubble-in-shape border border-white/10 bg-bubble-in text-bubble-in-foreground",
           )}
         >
@@ -280,7 +280,7 @@ export function MessageBubble({
             {mine &&
               !deleted &&
               (seen ? (
-                <CheckCheck className="h-3.5 w-3.5 text-brand-soft" />
+                <CheckCheck className="h-3.5 w-3.5 text-cyan" />
               ) : (
                 <Check className="h-3.5 w-3.5" />
               ))}
@@ -302,7 +302,7 @@ export function MessageBubble({
                 initial={{ scale: 0.4, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 520, damping: 16 }}
-                className="flex items-center gap-1 rounded-[9px] border border-white/10 bg-surface px-1.5 py-0.5 text-xs shadow-soft press"
+                className="flex items-center gap-1 rounded-[9px] border border-white/10 bg-[#141722] px-1.5 py-0.5 text-xs shadow-soft press hover:border-brand/40"
               >
                 <span>{emoji}</span>
                 {count > 1 && <span className="text-[10px] text-muted-foreground">{count}</span>}

@@ -57,8 +57,8 @@ function CallsPage() {
       <PageBackground />
       <SideRail />
       <div className="mx-auto w-full max-w-2xl pb-24 md:pb-6">
-        <header className="sticky top-0 z-30 border-b border-white/8 bg-background/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-cyan">
+        <header className="sticky top-0 z-30 border-b border-white/[0.07] bg-[#050608]/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] neon-text">
             PULSE / CONNECT
           </p>
           <h1 className="font-display text-[30px] font-semibold tracking-[-0.06em]">Calls</h1>
@@ -134,7 +134,7 @@ function CallRow({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={SPRING.layout}
-      className="flex items-center gap-3 rounded-[18px] border border-transparent p-3.5 hover:border-white/8 hover:bg-white/[0.035]"
+      className="flex items-center gap-3 rounded-[18px] border border-transparent bg-white/[0.018] p-3.5 hover:border-white/10 hover:bg-white/[0.055]"
     >
       <PulseAvatar profile={peer} size="lg" showPresence />
       <div className="min-w-0 flex-1">
@@ -158,7 +158,7 @@ function CallRow({
             type="button"
             aria-label={`Call ${peer.display_name}`}
             onClick={() => onCall(peer, "voice")}
-            className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 press hover:bg-white/[0.07]"
+            className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 text-cyan press hover:border-cyan/40 hover:bg-white/[0.07]"
           >
             <PhoneCall className="h-4 w-4" />
           </button>
@@ -166,7 +166,7 @@ function CallRow({
             type="button"
             aria-label={`Video call ${peer.display_name}`}
             onClick={() => onCall(peer, "video")}
-            className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 press hover:bg-white/[0.07]"
+            className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 text-cyan press hover:border-cyan/40 hover:bg-white/[0.07]"
           >
             <Video className="h-4 w-4" />
           </button>

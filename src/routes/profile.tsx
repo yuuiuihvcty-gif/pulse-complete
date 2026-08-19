@@ -96,9 +96,9 @@ function ProfilePage() {
       <PageBackground />
       <SideRail />
       <div className="mx-auto w-full max-w-2xl pb-28 md:pb-10">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/8 bg-background/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/[0.07] bg-[#050608]/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
           <div>
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-brand">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] neon-text">
               PULSE / IDENTITY
             </p>
             <h1 className="font-display text-[30px] font-semibold tracking-[-0.06em]">You</h1>
@@ -106,7 +106,7 @@ function ProfilePage() {
           <Link
             to="/settings"
             aria-label="Settings"
-            className="grid h-10 w-10 place-items-center rounded-[14px] border border-white/10 bg-white/[0.035] press hover:bg-white/[0.07]"
+            className="grid h-10 w-10 place-items-center rounded-[14px] border border-white/10 bg-white/[0.035] text-cyan press hover:border-brand/40 hover:bg-white/[0.07]"
           >
             <SettingsIcon className="h-5 w-5" />
           </Link>
@@ -116,7 +116,7 @@ function ProfilePage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={SPRING.cinematic}
-          className="flex flex-col items-center border-b border-white/8 px-4 py-10"
+          className="surface-panel flex flex-col items-center border-b border-white/[0.07] px-4 py-10"
         >
           <div className="relative">
             <PulseAvatar profile={profile} size="xl" showPresence showMood ring="brand" />
@@ -124,7 +124,7 @@ function ProfilePage() {
               type="button"
               aria-label="Change profile photo"
               onClick={() => fileRef.current?.click()}
-              className="absolute bottom-0 right-0 grid h-10 w-10 place-items-center rounded-[13px] bg-brand text-brand-foreground shadow-float press"
+              className="absolute bottom-0 right-0 grid h-10 w-10 place-items-center rounded-[13px] bg-[linear-gradient(135deg,#38cfff,#8f68ff_52%,#ff5b9b)] text-white shadow-[0_12px_28px_-12px_rgba(143,104,255,0.95)] press"
             >
               <Camera className="h-4 w-4" />
             </button>
@@ -144,7 +144,7 @@ function ProfilePage() {
             {profile?.display_name}
           </p>
           <p className="text-sm text-muted-foreground">@{profile?.username}</p>
-          <p className="mt-1 text-xs font-semibold tracking-[0.16em] text-brand">
+          <p className="mt-1 text-xs font-semibold tracking-[0.16em] neon-text">
             IDE {profile?.ide}
           </p>
         </motion.section>
@@ -212,7 +212,7 @@ function ProfilePage() {
                 phone: phone.trim() || null,
               })
             }
-            className="h-12 w-full rounded-[14px] bg-brand text-sm font-semibold text-brand-foreground shadow-soft press disabled:opacity-50"
+            className="h-12 w-full rounded-[14px] bg-[linear-gradient(105deg,#38cfff,#8f68ff_52%,#ff5b9b)] text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(143,104,255,0.95)] press disabled:opacity-50"
           >
             {save.isPending ? "Saving…" : "Save changes"}
           </button>

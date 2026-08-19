@@ -129,13 +129,13 @@ function AuthPage() {
         <span className="absolute bottom-[24%] left-[27%] h-1.5 w-1.5 rounded-full bg-amber animate-signal [animation-delay:1.3s]" />
       </div>
       <main className="relative mx-auto grid min-h-screen w-full max-w-6xl items-center gap-12 px-5 py-10 sm:px-8 lg:grid-cols-[1fr_420px] lg:gap-24 lg:px-14">
-        <section className="hidden lg:block">
-          <p className="mb-10 font-display text-sm font-semibold tracking-[0.32em] text-brand">
+        <section className="hidden lg:block animate-rise-in">
+          <p className="mb-10 font-display text-sm font-semibold tracking-[0.32em] neon-text">
             PULSE / 01
           </p>
           <h1 className="max-w-xl font-display text-6xl font-semibold leading-[0.96] tracking-[-0.07em] text-balance xl:text-7xl">
             Conversations
-            <span className="block text-brand">that move.</span>
+            <span className="block neon-text">that move.</span>
           </h1>
           <p className="mt-8 max-w-md text-lg leading-relaxed text-muted-foreground">
             A calmer space for the people, messages, and small moments that keep your world in
@@ -149,7 +149,7 @@ function AuthPage() {
 
         <motion.section
           layout
-          className="surface-elevated relative rounded-[30px] border border-white/10 p-6 sm:p-8"
+          className="surface-elevated relative animate-rise-in rounded-[30px] border border-white/10 p-6 sm:p-8 md:border-white/[0.13]"
         >
           <div className="mb-8 flex items-start justify-between gap-4">
             <div>
@@ -162,7 +162,7 @@ function AuthPage() {
                   : "Start with a name. Make it yours."}
               </p>
             </div>
-            <span className="grid h-10 w-10 place-items-center rounded-[14px] border border-brand/25 bg-brand/10 text-brand">
+            <span className="grid h-10 w-10 place-items-center rounded-[14px] border border-brand/35 bg-[linear-gradient(135deg,rgba(56,207,255,0.18),rgba(143,104,255,0.2),rgba(255,91,155,0.18))] text-white">
               <span className="font-display text-sm font-bold tracking-[-0.12em]">pu</span>
             </span>
           </div>
@@ -234,7 +234,7 @@ function AuthPage() {
               disabled={busy}
               whileTap={{ scale: 0.98, y: 1 }}
               transition={SPRING.press}
-              className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-[15px] bg-brand text-[15px] font-semibold text-brand-foreground shadow-soft press disabled:opacity-70"
+              className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-[15px] bg-[linear-gradient(105deg,#38cfff,#8f68ff_52%,#ff5b9b)] text-[15px] font-semibold text-white shadow-[0_14px_32px_-16px_rgba(143,104,255,0.95)] press disabled:opacity-70"
             >
               <AnimatePresence mode="wait" initial={false}>
                 {done ? (
@@ -268,7 +268,7 @@ function AuthPage() {
           <button
             type="button"
             onClick={google}
-            className="flex h-11 w-full items-center justify-center rounded-[14px] border border-white/10 bg-white/[0.035] text-sm font-semibold text-foreground press"
+            className="flex h-11 w-full items-center justify-center rounded-[14px] border border-white/10 bg-white/[0.035] text-sm font-semibold text-foreground press hover:border-cyan/40 hover:bg-white/[0.06]"
           >
             Continue with Google
           </button>
@@ -316,7 +316,7 @@ function PulseField({
       <span
         className={cn(
           "flex items-center gap-3 rounded-[14px] border bg-white/[0.035] px-3 transition-colors",
-          active ? "border-brand/60 ring-2 ring-brand/10" : "border-white/10",
+          active ? "border-brand/70 ring-2 ring-brand/15 shadow-[0_0_24px_-16px_rgba(56,207,255,0.85)]" : "border-white/10",
         )}
       >
         <span className={cn("text-muted-foreground transition-colors", active && "text-brand")}>

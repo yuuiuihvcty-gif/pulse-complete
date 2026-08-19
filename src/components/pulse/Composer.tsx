@@ -342,7 +342,7 @@ export function Composer({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}
-            className="mb-2 grid max-h-40 grid-cols-10 gap-1 overflow-y-auto rounded-[16px] border border-white/10 bg-surface p-2 shadow-float scrollbar-slim"
+            className="surface-elevated mb-2 grid max-h-40 grid-cols-10 gap-1 overflow-y-auto rounded-[16px] border border-white/10 p-2 shadow-float scrollbar-slim"
           >
             {EMOJI.map((e) => (
               <button
@@ -363,7 +363,7 @@ export function Composer({
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex min-w-0 flex-1 items-center gap-3 rounded-[16px] border border-brand/30 bg-brand/[0.05] px-4 py-2.5"
+            className="flex min-w-0 flex-1 items-center gap-3 rounded-[16px] border border-brand/35 bg-[linear-gradient(105deg,rgba(56,207,255,0.08),rgba(143,104,255,0.1),rgba(255,91,155,0.08))] px-4 py-2.5 shadow-[0_0_26px_-18px_rgba(143,104,255,0.95)]"
           >
             <span
               className={cn(
@@ -387,7 +387,7 @@ export function Composer({
                 {(levels.length ? levels : [0.05]).slice(-40).map((v, i) => (
                   <span
                     key={i}
-                    className="w-[3px] flex-1 rounded-full bg-brand"
+                    className="w-[3px] flex-1 rounded-full bg-[linear-gradient(180deg,#38cfff,#ff5b9b)]"
                     style={{ height: `${Math.max(12, v * 100)}%` }}
                   />
                 ))}
@@ -416,7 +416,7 @@ export function Composer({
               type="button"
               aria-label="Send voice message"
               onClick={() => finishRecording(false)}
-              className="grid h-9 w-9 place-items-center rounded-[10px] bg-brand text-brand-foreground press"
+              className="grid h-9 w-9 place-items-center rounded-[10px] bg-[linear-gradient(135deg,#38cfff,#8f68ff_52%,#ff5b9b)] text-white press"
             >
               <Send className="h-4 w-4" />
             </button>
@@ -430,7 +430,7 @@ export function Composer({
               onPointerCancel={onMicUp}
               animate={{ scale: [1, 1.08, 1] }}
               transition={{ repeat: Infinity, duration: 1.4 }}
-              className="relative grid h-11 w-11 shrink-0 place-items-center rounded-[13px] bg-brand text-brand-foreground shadow-soft"
+              className="relative grid h-11 w-11 shrink-0 place-items-center rounded-[13px] bg-[linear-gradient(135deg,#38cfff,#8f68ff_52%,#ff5b9b)] text-white shadow-[0_12px_28px_-14px_rgba(143,104,255,0.95)]"
             >
               <Mic className="h-5 w-5" />
               <span className="absolute -top-8 grid h-6 w-6 place-items-center rounded-[8px] bg-white/[0.08] text-muted-foreground">
@@ -441,7 +441,7 @@ export function Composer({
         </div>
       ) : (
         <div className="flex items-end gap-2">
-          <div className="flex min-w-0 flex-1 items-end gap-1 rounded-[16px] border border-white/10 bg-white/[0.035] px-2 py-1.5">
+          <div className="flex min-w-0 flex-1 items-end gap-1 rounded-[16px] border border-white/10 bg-[#0b0d13] px-2 py-1.5 transition-colors focus-within:border-brand/45 focus-within:shadow-[0_0_24px_-16px_rgba(56,207,255,0.85)]">
             <button
               type="button"
               aria-label="Emoji"
@@ -497,8 +497,8 @@ export function Composer({
             whileTap={{ scale: 0.9 }}
             transition={{ type: "spring", stiffness: 480, damping: 24 }}
             className={cn(
-              "grid h-11 w-11 shrink-0 place-items-center rounded-[13px] text-brand-foreground shadow-soft",
-              hasText ? "bg-brand" : "bg-foreground/85",
+              "grid h-11 w-11 shrink-0 place-items-center rounded-[13px] text-white shadow-[0_12px_28px_-14px_rgba(143,104,255,0.95)]",
+              hasText ? "bg-[linear-gradient(135deg,#38cfff,#8f68ff_52%,#ff5b9b)]" : "bg-white/[0.12] text-cyan",
             )}
           >
             <AnimatePresence mode="wait" initial={false}>

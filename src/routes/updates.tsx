@@ -129,9 +129,9 @@ function UpdatesPage() {
       <PageBackground />
       <SideRail />
       <div className="mx-auto w-full max-w-2xl pb-24 md:pb-6">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/8 bg-background/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/[0.07] bg-[#050608]/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
           <div>
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-amber">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] neon-text">
               PULSE / NOW
             </p>
             <h1 className="font-display text-[30px] font-semibold tracking-[-0.06em]">Updates</h1>
@@ -140,7 +140,7 @@ function UpdatesPage() {
           <button
             type="button"
             onClick={() => setComposing((v) => !v)}
-            className="grid h-11 w-11 place-items-center rounded-[14px] bg-brand text-brand-foreground shadow-soft press"
+            className="grid h-11 w-11 place-items-center rounded-[14px] bg-[linear-gradient(135deg,#38cfff,#8f68ff_52%,#ff5b9b)] text-white shadow-[0_12px_28px_-14px_rgba(143,104,255,0.95)] press"
             aria-label="Share an update"
           >
             {composing ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
@@ -153,7 +153,7 @@ function UpdatesPage() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden border-b border-white/8 bg-surface/60 px-4 py-5 md:px-6"
+              className="surface-panel overflow-hidden border-b border-white/[0.07] px-4 py-5 md:px-6"
             >
               <textarea
                 value={text}
@@ -162,7 +162,7 @@ function UpdatesPage() {
                 maxLength={280}
                 placeholder="What's happening right now?"
                 aria-label="Update text"
-                className="w-full resize-none rounded-[16px] border border-white/10 bg-white/[0.035] px-4 py-3 text-sm outline-none transition-colors focus:border-brand/60 placeholder:text-muted-foreground"
+                className="w-full resize-none rounded-[16px] border border-white/10 bg-[#090b10] px-4 py-3 text-sm outline-none transition-colors focus:border-brand/60 focus:shadow-[0_0_24px_-16px_rgba(56,207,255,0.85)] placeholder:text-muted-foreground"
               />
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -224,7 +224,7 @@ function UpdatesPage() {
                       audience,
                     })
                   }
-                  className="h-10 rounded-[12px] bg-brand px-5 text-sm font-semibold text-brand-foreground press disabled:opacity-50"
+                  className="h-10 rounded-[12px] bg-[linear-gradient(105deg,#38cfff,#8f68ff_52%,#ff5b9b)] px-5 text-sm font-semibold text-white shadow-[0_10px_24px_-14px_rgba(143,104,255,0.9)] press disabled:opacity-50"
                 >
                   Share
                 </button>
@@ -250,7 +250,7 @@ function UpdatesPage() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={SPRING.layout}
-                className="flex items-center gap-3 rounded-[18px] border border-transparent p-3.5 hover:border-white/8 hover:bg-white/[0.035]"
+                className="flex items-center gap-3 rounded-[18px] border border-transparent bg-white/[0.018] p-3.5 hover:border-white/10 hover:bg-white/[0.055]"
               >
                 <button
                   type="button"
@@ -352,7 +352,7 @@ function StoryViewer({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 grid place-items-center bg-background/96 p-4 backdrop-blur-2xl"
+      className="fixed inset-0 z-50 grid place-items-center bg-[#030406]/96 p-4 backdrop-blur-2xl"
       role="dialog"
       aria-label="Update"
     >
@@ -376,7 +376,7 @@ function StoryViewer({
         </div>
         <div
           className={cn(
-            "grid min-h-[60vh] place-items-center overflow-hidden rounded-[24px] border border-white/10 p-6 text-center shadow-float",
+            "neon-border grid min-h-[60vh] place-items-center overflow-hidden rounded-[24px] p-6 text-center shadow-float",
             `wp-${story.background ?? "aurora"}`,
             "wallpaper",
           )}
@@ -400,7 +400,7 @@ function StoryViewer({
               onClick={() => chooseReaction(emoji)}
               className={cn(
                 "grid h-9 w-9 place-items-center rounded-full border text-base press",
-                reaction === emoji ? "border-brand bg-brand-soft" : "border-border bg-surface-2",
+                reaction === emoji ? "border-brand bg-brand-soft shadow-[0_0_18px_-10px_rgba(143,104,255,0.95)]" : "border-border bg-surface-2",
               )}
               aria-label={`React ${emoji}`}
             >
@@ -421,7 +421,7 @@ function StoryViewer({
             type="button"
             disabled={!reply.trim() || sendReply.isPending}
             onClick={() => sendReply.mutate()}
-            className="grid h-10 w-10 place-items-center rounded-full bg-brand text-brand-foreground press disabled:opacity-50"
+            className="grid h-10 w-10 place-items-center rounded-full bg-[linear-gradient(135deg,#38cfff,#8f68ff_52%,#ff5b9b)] text-white shadow-[0_10px_24px_-12px_rgba(143,104,255,0.95)] press disabled:opacity-50"
             aria-label="Send reply"
           >
             <Send className="h-4 w-4" />

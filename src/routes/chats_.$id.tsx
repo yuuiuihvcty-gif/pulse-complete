@@ -347,12 +347,12 @@ function Thread() {
     <div className="relative flex h-[100dvh] flex-col">
       <PageBackground />
       {/* HEADER — shared layout animation from the chat list row */}
-      <header className="z-30 flex items-center gap-3 border-b border-white/8 bg-background/82 px-2 py-2.5 backdrop-blur-2xl md:px-4">
+      <header className="z-30 flex items-center gap-3 border-b border-white/[0.07] bg-[#050608]/88 px-2 py-2.5 backdrop-blur-2xl md:px-4">
         <button
           type="button"
           aria-label="Back to chats"
           onClick={() => void navigate({ to: "/chats" })}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-[13px] border border-white/10 bg-white/[0.035] press hover:bg-white/[0.07]"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-[13px] border border-white/10 bg-white/[0.035] text-cyan press hover:border-brand/40 hover:bg-white/[0.07]"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
@@ -392,14 +392,14 @@ function Thread() {
           type="button"
           aria-label="Search in conversation"
           onClick={() => setSearchOpen((v) => !v)}
-          className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 bg-white/[0.035] press hover:bg-white/[0.07]"
+          className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 bg-white/[0.035] text-cyan press hover:border-brand/40 hover:bg-white/[0.07]"
         >
           {searchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
         </button>
         <Link
           to="/calls"
           aria-label="Voice call"
-          className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 bg-white/[0.035] press hover:bg-white/[0.07]"
+          className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 bg-white/[0.035] text-cyan press hover:border-brand/40 hover:bg-white/[0.07]"
         >
           <Phone className="h-5 w-5" />
         </Link>
@@ -418,7 +418,7 @@ function Thread() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-b border-white/8 bg-background/90 px-3"
+            className="surface-panel overflow-hidden border-b border-white/[0.07] px-3"
           >
             <input
               autoFocus
@@ -438,7 +438,7 @@ function Thread() {
           const el = e.currentTarget;
           setAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 120);
         }}
-        className={cn("relative flex-1 overflow-y-auto scrollbar-slim", "bg-background")}
+        className={cn("relative flex-1 overflow-y-auto scrollbar-slim", "bg-[#050608]")}
       >
         {messages.isLoading ? (
           <BubbleSkeleton />
@@ -458,7 +458,7 @@ function Thread() {
                   type="button"
                   onClick={() => void loadOlder()}
                   disabled={loadingOlder}
-                  className="rounded-[11px] border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-muted-foreground shadow-soft backdrop-blur press hover:bg-white/[0.07] disabled:cursor-wait disabled:opacity-60"
+                  className="rounded-[11px] border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-muted-foreground shadow-soft backdrop-blur press hover:border-brand/40 hover:bg-white/[0.07] disabled:cursor-wait disabled:opacity-60"
                 >
                   {loadingOlder ? "Loading older messages…" : "Load older messages"}
                 </button>
@@ -535,13 +535,13 @@ function Thread() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 grid place-items-center bg-background/82 p-4 backdrop-blur-2xl"
+            className="fixed inset-0 z-50 grid place-items-center bg-[#030406]/86 p-4 backdrop-blur-2xl"
           >
             <div
               role="dialog"
               aria-modal="true"
               aria-label="Forward message"
-              className="w-full max-w-md rounded-[22px] border border-white/10 bg-surface p-4 shadow-float"
+              className="surface-elevated w-full max-w-md rounded-[22px] border border-white/10 p-4 shadow-float"
             >
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>

@@ -91,10 +91,10 @@ function ChatsPage() {
       <PageBackground />
       <SideRail unread={unread} />
       <div className="relative mx-auto w-full max-w-2xl pb-24 md:pb-6">
-        <header className="sticky top-0 z-30 border-b border-white/8 bg-background/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
+        <header className="sticky top-0 z-30 border-b border-white/[0.07] bg-[#050608]/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-brand">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] neon-text">
                 PULSE / INBOX
               </p>
               <h1 className="font-display text-[30px] font-semibold tracking-[-0.06em]">Chats</h1>
@@ -108,14 +108,14 @@ function ChatsPage() {
               <Link
                 to="/search"
                 aria-label="Search people and messages"
-                className="grid h-10 w-10 place-items-center rounded-[14px] border border-white/10 bg-white/[0.035] press hover:bg-white/[0.07]"
+                className="grid h-10 w-10 place-items-center rounded-[14px] border border-white/10 bg-white/[0.035] text-cyan press hover:border-brand/40 hover:bg-white/[0.07]"
               >
                 <Search className="h-5 w-5" />
               </Link>
               <PulseAvatar profile={profile} size="md" showPresence showMood />
             </div>
           </div>
-          <label className="mt-5 flex items-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.035] px-3 transition-colors focus-within:border-brand/50">
+          <label className="mt-5 flex items-center gap-2 rounded-[16px] border border-white/10 bg-[#0c0e14]/90 px-3 transition-colors focus-within:border-brand/60 focus-within:shadow-[0_0_24px_-14px_rgba(143,104,255,0.9)]">
             <Search className="h-4 w-4 text-muted-foreground" />
             <input
               value={term}
@@ -141,7 +141,7 @@ function ChatsPage() {
               !term && (
                 <Link
                   to="/contacts"
-                  className="inline-flex h-11 items-center gap-2 rounded-[14px] bg-brand px-5 text-sm font-semibold text-brand-foreground shadow-soft press"
+                  className="inline-flex h-11 items-center gap-2 rounded-[14px] bg-[linear-gradient(105deg,#38cfff,#8f68ff_52%,#ff5b9b)] px-5 text-sm font-semibold text-white shadow-[0_12px_28px_-14px_rgba(143,104,255,0.95)] press"
                 >
                   <Plus className="h-4 w-4" /> Start chatting
                 </Link>
@@ -198,7 +198,7 @@ function ChatRow({ conv }: { conv: ConversationSummary }) {
       <Link
         to="/chats/$id"
         params={{ id: conv.id }}
-        className="group flex items-center gap-3 rounded-[18px] border border-transparent p-3.5 press hover:border-white/8 hover:bg-white/[0.035]"
+        className="group flex items-center gap-3 rounded-[18px] border border-transparent bg-white/[0.018] p-3.5 press hover:border-white/10 hover:bg-white/[0.055]"
       >
         <motion.span layoutId={`avatar-${conv.id}`} className="relative">
           <PulseAvatar profile={conv.other} size="lg" showPresence showMood />
