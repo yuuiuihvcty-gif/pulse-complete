@@ -372,27 +372,20 @@ export function Composer({
               )}
             />
             <span className="text-sm font-medium tabular-nums">{duration(elapsed)}</span>
-            {!locked ? (
-              <span
-                className="flex-1 truncate text-center text-xs text-muted-foreground"
-                style={{
-                  transform: `translateX(${slide / 3}px)`,
-                  opacity: 1 - Math.min(0.8, -slide / 140),
-                }}
-              >
-                ‹ Slide to cancel · slide up to lock
-              </span>
-            ) : (
-              <span className="flex h-6 flex-1 items-center gap-[3px] overflow-hidden" aria-hidden>
-                {(levels.length ? levels : [0.05]).slice(-40).map((v, i) => (
-                  <span
-                    key={i}
-                    className="w-[3px] flex-1 rounded-full bg-[linear-gradient(180deg,#38cfff,#ff5b9b)]"
-                    style={{ height: `${Math.max(12, v * 100)}%` }}
-                  />
-                ))}
-              </span>
-            )}
+            <div className="min-w-0 flex-1">
+              <VoiceWaveform levels={levels} paused={paused} />
+              {!locked && (
+                <span
+                  className="mt-1 block truncate text-center text-[10px] text-muted-foreground"
+                  style={{
+                    transform: `translateX(${slide / 3}px)`,
+                    opacity: 1 - Math.min(0.8, -slide / 140),
+                  }}
+                >
+                  ‹ Slide to cancel · slide up to lock
+                </span>
+              )}
+            </div>
             {locked && (
               <button
                 type="button"
@@ -548,6 +541,28 @@ export function Composer({
         }}
       />
       {locked && null}
+    </div>
+  );
+}
+
+function VoiceWaveform({ levels, paused }: { levels: number[]; paused: boolean }) {
+  const samples = levels.length ? levels.slice(-32) : Array.from({ length: 32 }, (_, i) => 0.12 + Math.abs(Math.sin(i * 1.7)) * 0.08);
+
+  return (
+    <div
+      className={cn("flex h-7 items-center gap-[3px] overflow-hidden", paused && "opacity-55")}
+      aria-label={paused ? "Voice recording paused" : "Live microphone waveform"}
+      role="img"
+    >
+      {samples.map((level, index) => (
+        <motion.span
+          key={`${index}-${samples.length}`}
+          className="min-w-[2px] flex-1 rounded-full bg-[linear-gradient(180deg,#38cfff,#8f68ff_52%,#ff5b9b)]"
+          initial={false}
+          animate={{ height: `${Math.max(16, Math.min(100, level * 100))}%` }}
+          transition={{ duration: paused ? 0.35 : 0.12, ease: "easeOut" }}
+        />
+      ))}
     </div>
   );
 }
