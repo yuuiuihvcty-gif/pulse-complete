@@ -14,7 +14,6 @@ import { SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { CallRecord, Profile } from "@/lib/types";
 import { PageBackground } from "@/components/pulse/PageBackground";
-import bgcallsBg from "@/assets/bg-calls.jpeg.asset.json";
 
 export const Route = createFileRoute("/calls")({
   head: () => ({
@@ -55,17 +54,20 @@ function CallsPage() {
 
   return (
     <div className="relative min-h-screen md:flex">
-      <PageBackground src={bgcallsBg.url} />
+      <PageBackground />
       <SideRail />
       <div className="mx-auto w-full max-w-2xl pb-24 md:pb-6">
-        <header className="sticky top-0 z-30 border-b border-border bg-surface/85 px-4 pb-3 pt-5 backdrop-blur-xl">
-          <h1 className="font-display text-[26px] font-bold tracking-tight">Calls</h1>
+        <header className="sticky top-0 z-30 border-b border-white/8 bg-background/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-cyan">
+            PULSE / CONNECT
+          </p>
+          <h1 className="font-display text-[30px] font-semibold tracking-[-0.06em]">Calls</h1>
           <p className="text-xs text-muted-foreground">Voice and video, straight from a contact</p>
         </header>
 
         {(contacts.data ?? []).length > 0 && (
           <section className="px-4 pt-4">
-            <h2 className="pb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <h2 className="pb-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
               Quick call
             </h2>
             <ul className="flex gap-3 overflow-x-auto pb-2 scrollbar-slim">
@@ -94,7 +96,7 @@ function CallsPage() {
             description="Ring a contact above and your history will show up here."
           />
         ) : (
-          <ul className="space-y-1 p-2">
+          <ul className="space-y-1 p-3 md:p-4">
             {calls.map((c) => (
               <CallRow
                 key={c.id}
@@ -132,7 +134,7 @@ function CallRow({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={SPRING.layout}
-      className="flex items-center gap-3 rounded-3xl p-3 hover:bg-surface-2"
+      className="flex items-center gap-3 rounded-[18px] border border-transparent p-3.5 hover:border-white/8 hover:bg-white/[0.035]"
     >
       <PulseAvatar profile={peer} size="lg" showPresence />
       <div className="min-w-0 flex-1">
@@ -156,7 +158,7 @@ function CallRow({
             type="button"
             aria-label={`Call ${peer.display_name}`}
             onClick={() => onCall(peer, "voice")}
-            className="grid h-10 w-10 place-items-center rounded-full border border-border press hover:bg-surface-2"
+            className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 press hover:bg-white/[0.07]"
           >
             <PhoneCall className="h-4 w-4" />
           </button>
@@ -164,7 +166,7 @@ function CallRow({
             type="button"
             aria-label={`Video call ${peer.display_name}`}
             onClick={() => onCall(peer, "video")}
-            className="grid h-10 w-10 place-items-center rounded-full border border-border press hover:bg-surface-2"
+            className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 press hover:bg-white/[0.07]"
           >
             <Video className="h-4 w-4" />
           </button>

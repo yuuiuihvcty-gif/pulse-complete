@@ -8,8 +8,46 @@ import { validateFile } from "@/lib/media";
 import type { Message } from "@/lib/types";
 
 const EMOJI = [
-  "😀","😁","😂","🤣","😊","😍","😘","😜","🤩","🥳","😎","🤔","😴","😢","😭","😡","🙏","👍","👎","👏",
-  "🔥","💯","🎉","✨","❤️","🧡","💙","💜","🖤","🤝","🫶","🙌","💪","🎧","📚","🎮","☕","🍕","🌙","⭐",
+  "😀",
+  "😁",
+  "😂",
+  "🤣",
+  "😊",
+  "😍",
+  "😘",
+  "😜",
+  "🤩",
+  "🥳",
+  "😎",
+  "🤔",
+  "😴",
+  "😢",
+  "😭",
+  "😡",
+  "🙏",
+  "👍",
+  "👎",
+  "👏",
+  "🔥",
+  "💯",
+  "🎉",
+  "✨",
+  "❤️",
+  "🧡",
+  "💙",
+  "💜",
+  "🖤",
+  "🤝",
+  "🫶",
+  "🙌",
+  "💪",
+  "🎧",
+  "📚",
+  "🎮",
+  "☕",
+  "🍕",
+  "🌙",
+  "⭐",
 ];
 
 export type OutgoingAttachment = {
@@ -238,8 +276,6 @@ export function Composer({
     finishRecording(false);
   };
 
-
-
   const handleFiles = (files: FileList | null, forceKind?: "image" | "video") => {
     const file = files?.[0];
     if (!file) return;
@@ -250,7 +286,11 @@ export function Composer({
     }
     const kind: OutgoingAttachment["kind"] =
       forceKind ??
-      (file.type.startsWith("image/") ? "image" : file.type.startsWith("video/") ? "video" : "file");
+      (file.type.startsWith("image/")
+        ? "image"
+        : file.type.startsWith("video/")
+          ? "video"
+          : "file");
     onSendAttachment({ file, filename: file.name, kind }, text.trim() || undefined);
     setText("");
   };
@@ -258,7 +298,7 @@ export function Composer({
   const hasText = text.trim().length > 0;
 
   return (
-    <div className="sticky bottom-0 z-30 border-t border-border bg-surface/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
+    <div className="sticky bottom-0 z-30 border-t border-white/8 bg-background/92 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-2xl md:px-4">
       <AnimatePresence>
         {(replyTo || editing) && (
           <motion.div
@@ -267,7 +307,7 @@ export function Composer({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="mb-2 flex items-start gap-2 rounded-2xl border-l-2 border-brand bg-secondary px-3 py-2">
+            <div className="mb-2 flex items-start gap-2 rounded-[14px] border border-brand/25 border-l-2 bg-brand/[0.06] px-3 py-2">
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold text-brand">
                   {editing ? "Editing message" : "Replying"}
@@ -280,10 +320,14 @@ export function Composer({
                 type="button"
                 aria-label="Cancel"
                 onClick={() => {
-                  editing ? onCancelEdit() : onCancelReply();
-                  if (editing) setText("");
+                  if (editing) {
+                    onCancelEdit();
+                    setText("");
+                  } else {
+                    onCancelReply();
+                  }
                 }}
-                className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-surface press"
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-[9px] border border-white/10 bg-white/[0.06] press"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -298,7 +342,7 @@ export function Composer({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}
-            className="mb-2 grid max-h-40 grid-cols-10 gap-1 overflow-y-auto rounded-2xl border border-border bg-popover p-2 scrollbar-slim"
+            className="mb-2 grid max-h-40 grid-cols-10 gap-1 overflow-y-auto rounded-[16px] border border-white/10 bg-surface p-2 shadow-float scrollbar-slim"
           >
             {EMOJI.map((e) => (
               <button
@@ -316,92 +360,93 @@ export function Composer({
 
       {recording ? (
         <div className="flex items-center gap-2">
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex min-w-0 flex-1 items-center gap-3 rounded-full border border-border bg-surface-2 px-4 py-2.5"
-        >
-
-          <span
-            className={cn(
-              "h-2.5 w-2.5 rounded-full bg-destructive",
-              paused ? "opacity-40" : "animate-pulse",
-            )}
-          />
-          <span className="text-sm font-medium tabular-nums">{duration(elapsed)}</span>
-          {!locked ? (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex min-w-0 flex-1 items-center gap-3 rounded-[16px] border border-brand/30 bg-brand/[0.05] px-4 py-2.5"
+          >
             <span
-              className="flex-1 truncate text-center text-xs text-muted-foreground"
-              style={{ transform: `translateX(${slide / 3}px)`, opacity: 1 - Math.min(0.8, -slide / 140) }}
-            >
-              ‹ Slide to cancel · slide up to lock
-            </span>
-          ) : (
-            <span className="flex h-6 flex-1 items-center gap-[3px] overflow-hidden" aria-hidden>
-              {(levels.length ? levels : [0.05]).slice(-40).map((v, i) => (
-                <span
-                  key={i}
-                  className="w-[3px] flex-1 rounded-full bg-brand"
-                  style={{ height: `${Math.max(12, v * 100)}%` }}
-                />
-              ))}
-            </span>
-          )}
-          {locked && (
+              className={cn(
+                "h-2.5 w-2.5 rounded-full bg-destructive",
+                paused ? "opacity-40" : "animate-pulse",
+              )}
+            />
+            <span className="text-sm font-medium tabular-nums">{duration(elapsed)}</span>
+            {!locked ? (
+              <span
+                className="flex-1 truncate text-center text-xs text-muted-foreground"
+                style={{
+                  transform: `translateX(${slide / 3}px)`,
+                  opacity: 1 - Math.min(0.8, -slide / 140),
+                }}
+              >
+                ‹ Slide to cancel · slide up to lock
+              </span>
+            ) : (
+              <span className="flex h-6 flex-1 items-center gap-[3px] overflow-hidden" aria-hidden>
+                {(levels.length ? levels : [0.05]).slice(-40).map((v, i) => (
+                  <span
+                    key={i}
+                    className="w-[3px] flex-1 rounded-full bg-brand"
+                    style={{ height: `${Math.max(12, v * 100)}%` }}
+                  />
+                ))}
+              </span>
+            )}
+            {locked && (
+              <button
+                type="button"
+                aria-label={paused ? "Resume recording" : "Pause recording"}
+                onClick={togglePause}
+                className="grid h-9 w-9 place-items-center rounded-[10px] bg-white/[0.08] press"
+              >
+                {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+              </button>
+            )}
+
             <button
               type="button"
-              aria-label={paused ? "Resume recording" : "Pause recording"}
-              onClick={togglePause}
-              className="grid h-9 w-9 place-items-center rounded-full bg-secondary press"
+              aria-label="Cancel recording"
+              onClick={() => finishRecording(true)}
+              className="grid h-9 w-9 place-items-center rounded-[10px] bg-white/[0.08] text-destructive press"
             >
-              {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+              <Trash2 className="h-4 w-4" />
             </button>
+            <button
+              type="button"
+              aria-label="Send voice message"
+              onClick={() => finishRecording(false)}
+              className="grid h-9 w-9 place-items-center rounded-[10px] bg-brand text-brand-foreground press"
+            >
+              <Send className="h-4 w-4" />
+            </button>
+          </motion.div>
+          {!locked && (
+            <motion.button
+              type="button"
+              aria-label="Release to send, slide up to lock"
+              onPointerMove={onMicMove}
+              onPointerUp={onMicUp}
+              onPointerCancel={onMicUp}
+              animate={{ scale: [1, 1.08, 1] }}
+              transition={{ repeat: Infinity, duration: 1.4 }}
+              className="relative grid h-11 w-11 shrink-0 place-items-center rounded-[13px] bg-brand text-brand-foreground shadow-soft"
+            >
+              <Mic className="h-5 w-5" />
+              <span className="absolute -top-8 grid h-6 w-6 place-items-center rounded-[8px] bg-white/[0.08] text-muted-foreground">
+                <Lock className="h-3.5 w-3.5" />
+              </span>
+            </motion.button>
           )}
-
-          <button
-            type="button"
-            aria-label="Cancel recording"
-            onClick={() => finishRecording(true)}
-            className="grid h-9 w-9 place-items-center rounded-full bg-secondary text-destructive press"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            aria-label="Send voice message"
-            onClick={() => finishRecording(false)}
-            className="grid h-9 w-9 place-items-center rounded-full bg-brand text-brand-foreground press"
-          >
-            <Send className="h-4 w-4" />
-          </button>
-        </motion.div>
-        {!locked && (
-          <motion.button
-            type="button"
-            aria-label="Release to send, slide up to lock"
-            onPointerMove={onMicMove}
-            onPointerUp={onMicUp}
-            onPointerCancel={onMicUp}
-            animate={{ scale: [1, 1.08, 1] }}
-            transition={{ repeat: Infinity, duration: 1.4 }}
-            className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand text-brand-foreground shadow-soft"
-          >
-            <Mic className="h-5 w-5" />
-            <span className="absolute -top-8 grid h-6 w-6 place-items-center rounded-full bg-surface-2 text-muted-foreground">
-              <Lock className="h-3.5 w-3.5" />
-            </span>
-          </motion.button>
-        )}
         </div>
       ) : (
-
         <div className="flex items-end gap-2">
-          <div className="flex min-w-0 flex-1 items-end gap-1 rounded-3xl border border-border bg-surface-2 px-2 py-1.5">
+          <div className="flex min-w-0 flex-1 items-end gap-1 rounded-[16px] border border-white/10 bg-white/[0.035] px-2 py-1.5">
             <button
               type="button"
               aria-label="Emoji"
               onClick={() => setEmoji((v) => !v)}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground press hover:bg-secondary"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] text-muted-foreground press hover:bg-white/[0.07]"
             >
               <Smile className="h-5 w-5" />
             </button>
@@ -426,7 +471,7 @@ export function Composer({
               type="button"
               aria-label="Attach file"
               onClick={() => fileInput.current?.click()}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground press hover:bg-secondary"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] text-muted-foreground press hover:bg-white/[0.07]"
             >
               <Paperclip className="h-5 w-5" />
             </button>
@@ -434,7 +479,7 @@ export function Composer({
               type="button"
               aria-label="Camera"
               onClick={() => cameraInput.current?.click()}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground press hover:bg-secondary"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] text-muted-foreground press hover:bg-white/[0.07]"
             >
               <Camera className="h-5 w-5" />
             </button>
@@ -452,7 +497,7 @@ export function Composer({
             whileTap={{ scale: 0.9 }}
             transition={{ type: "spring", stiffness: 480, damping: 24 }}
             className={cn(
-              "grid h-11 w-11 shrink-0 place-items-center rounded-full text-brand-foreground shadow-soft",
+              "grid h-11 w-11 shrink-0 place-items-center rounded-[13px] text-brand-foreground shadow-soft",
               hasText ? "bg-brand" : "bg-foreground/85",
             )}
           >

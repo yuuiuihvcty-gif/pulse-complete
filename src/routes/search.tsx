@@ -10,7 +10,6 @@ import { useApp } from "@/lib/app-context";
 import { globalSearch, startDirectConversation } from "@/lib/api";
 import { chatListTime } from "@/lib/format";
 import { PageBackground } from "@/components/pulse/PageBackground";
-import bgchatsBg from "@/assets/bg-chats.jpeg.asset.json";
 
 export const Route = createFileRoute("/search")({
   head: () => ({
@@ -44,25 +43,27 @@ function SearchPage() {
   const messages = query.data?.messages ?? [];
 
   return (
-    <div className="relative min-h-screen md:flex">
-      <PageBackground src={bgchatsBg.url} />
+    <div className="relative min-h-screen bg-background md:flex">
+      <PageBackground />
       <SideRail />
       <main className="mx-auto w-full max-w-2xl pb-24 md:pb-6">
-        <header className="sticky top-0 z-30 border-b border-border bg-surface/85 px-4 pb-4 pt-4 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 border-b border-white/8 bg-background/86 px-4 pb-4 pt-4 backdrop-blur-2xl">
           <div className="mb-3 flex items-center gap-3">
             <Link
               to="/chats"
               aria-label="Back to chats"
-              className="grid h-10 w-10 place-items-center rounded-full press hover:bg-surface-2"
+              className="grid h-10 w-10 place-items-center rounded-[12px] border border-white/10 bg-white/[0.035] press hover:bg-white/[0.07]"
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="font-display text-[24px] font-bold tracking-tight">Search Pulse</h1>
+              <h1 className="font-display text-[24px] font-bold tracking-[-0.035em]">
+                Search Pulse
+              </h1>
               <p className="text-xs text-muted-foreground">People and messages in your network</p>
             </div>
           </div>
-          <label className="flex items-center gap-2 rounded-full border border-input bg-surface-2 px-3">
+          <label className="flex items-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.035] px-3">
             <SearchIcon className="h-4 w-4 text-muted-foreground" />
             <input
               autoFocus
@@ -107,7 +108,7 @@ function SearchPage() {
                             )
                             .catch(() => undefined);
                         }}
-                        className="flex w-full items-center gap-3 rounded-3xl p-3 text-left press hover:bg-surface-2"
+                        className="flex w-full items-center gap-3 rounded-[15px] p-3 text-left press hover:bg-white/[0.06]"
                       >
                         <PulseAvatar profile={person} size="md" showPresence showMood />
                         <span className="min-w-0 flex-1">
@@ -137,9 +138,9 @@ function SearchPage() {
                       <Link
                         to="/chats/$id"
                         params={{ id: message.conversation_id }}
-                        className="flex items-start gap-3 rounded-3xl p-3 press hover:bg-surface-2"
+                        className="flex items-start gap-3 rounded-[15px] p-3 press hover:bg-white/[0.06]"
                       >
-                        <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand">
+                        <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-[11px] bg-brand-soft text-brand">
                           <MessageCircle className="h-4 w-4" />
                         </span>
                         <span className="min-w-0 flex-1">

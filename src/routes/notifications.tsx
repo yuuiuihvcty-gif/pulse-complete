@@ -11,7 +11,6 @@ import { useApp } from "@/lib/app-context";
 import { listNotifications, markNotificationRead, markNotificationsRead } from "@/lib/api";
 import { chatListTime } from "@/lib/format";
 import { PageBackground } from "@/components/pulse/PageBackground";
-import bgchatsBg from "@/assets/bg-chats.jpeg.asset.json";
 
 export const Route = createFileRoute("/notifications")({
   head: () => ({
@@ -68,12 +67,17 @@ function NotificationsPage() {
 
   return (
     <div className="relative min-h-screen md:flex">
-      <PageBackground src={bgchatsBg.url} />
+      <PageBackground />
       <SideRail />
       <main className="mx-auto w-full max-w-2xl pb-24 md:pb-6">
-        <header className="sticky top-0 z-30 flex items-end justify-between gap-3 border-b border-border bg-surface/85 px-4 pb-3 pt-5 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 flex items-end justify-between gap-3 border-b border-white/8 bg-background/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
           <div>
-            <h1 className="font-display text-[26px] font-bold tracking-tight">Notifications</h1>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-amber">
+              PULSE / SIGNALS
+            </p>
+            <h1 className="font-display text-[30px] font-semibold tracking-[-0.06em]">
+              Notifications
+            </h1>
             <p className="text-xs text-muted-foreground">
               {unread > 0
                 ? `${unread} unread update${unread === 1 ? "" : "s"}`
@@ -85,7 +89,7 @@ function NotificationsPage() {
               type="button"
               onClick={() => markRead.mutate()}
               disabled={markRead.isPending}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-2 text-xs font-semibold press hover:bg-surface-2 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-[11px] border border-white/10 px-3 py-2 text-xs font-semibold press hover:bg-white/[0.07] disabled:opacity-60"
             >
               <CheckCheck className="h-3.5 w-3.5" /> Mark read
             </button>
@@ -101,20 +105,20 @@ function NotificationsPage() {
             description="Reactions, replies and new activity will appear here."
           />
         ) : (
-          <ul className="space-y-1 p-2">
+          <ul className="space-y-1 p-3 md:p-4">
             {rows.map((notification) => (
               <motion.li
                 key={notification.id}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`rounded-3xl ${notification.read ? "" : "bg-brand-soft/45"}`}
+                className={`rounded-[18px] border ${notification.read ? "border-transparent" : "border-brand/25 bg-brand/[0.06]"}`}
               >
                 <button
                   type="button"
                   onClick={() => void openNotification(notification)}
-                  className="flex w-full items-start gap-3 rounded-3xl p-3 text-left press hover:bg-surface-2"
+                  className="flex w-full items-start gap-3 rounded-[18px] p-3.5 text-left press hover:bg-white/[0.035]"
                 >
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-surface-2 text-brand">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[13px] border border-white/10 bg-white/[0.035] text-brand">
                     <Bell className="h-4 w-4" />
                   </span>
                   <div className="min-w-0 flex-1">

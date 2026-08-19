@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { ParallaxScene, PulseLoader } from "@/components/pulse/illo/Scene";
+import { PageBackground } from "@/components/pulse/PageBackground";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -10,12 +10,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Pulse is an illustrated, motion-first messenger: expressive chats, voice notes, moods and reactions that feel alive.",
+          "Pulse is a focused, expressive messenger for meaningful conversations, voice notes, updates, and calls.",
       },
       { property: "og:title", content: "Pulse — The Living Messenger" },
       {
         property: "og:description",
-        content: "An illustrated, motion-first messenger where every message feels alive.",
+        content:
+          "A focused messenger for meaningful conversations, voice notes, updates, and calls.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -31,10 +32,14 @@ function Index() {
   }, [navigate]);
 
   return (
-    <ParallaxScene className="min-h-screen">
-      <div className="grid min-h-screen place-items-center">
-        <PulseLoader label="Warming up Pulse…" />
+    <div className="relative grid min-h-screen place-items-center overflow-hidden bg-background">
+      <PageBackground />
+      <div className="relative z-10 grid min-h-screen place-items-center">
+        <div className="flex items-center gap-3 text-sm font-semibold text-muted-foreground">
+          <span className="signal-dot h-2 w-2 rounded-full bg-brand" />
+          Warming up Pulse…
+        </div>
       </div>
-    </ParallaxScene>
+    </div>
   );
 }

@@ -17,7 +17,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import type { UserSettings } from "@/lib/types";
 import { PageBackground } from "@/components/pulse/PageBackground";
-import bgyouBg from "@/assets/bg-you.jpeg.asset.json";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -75,17 +74,22 @@ function SettingsPage() {
 
   return (
     <div className="relative min-h-screen">
-      <PageBackground src={bgyouBg.url} />
+      <PageBackground />
       <div className="mx-auto w-full max-w-2xl pb-16">
-        <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-border bg-surface/85 px-2 pb-3 pt-4 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-white/8 bg-background/82 px-2 pb-4 pt-5 backdrop-blur-2xl md:px-4">
           <Link
             to="/profile"
             aria-label="Back to profile"
-            className="grid h-10 w-10 place-items-center rounded-full press hover:bg-surface-2"
+            className="grid h-10 w-10 place-items-center rounded-[14px] border border-white/10 bg-white/[0.035] press hover:bg-white/[0.07]"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="font-display text-[22px] font-bold tracking-tight">Settings</h1>
+          <div>
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-brand">
+              PULSE / CONTROL
+            </p>
+            <h1 className="font-display text-[28px] font-semibold tracking-[-0.06em]">Settings</h1>
+          </div>
         </header>
 
         <Section title="Appearance">
@@ -131,7 +135,7 @@ function SettingsPage() {
                 value={newEmail}
                 onChange={(event) => setNewEmail(event.target.value)}
                 placeholder="New email address"
-                className="h-10 min-w-0 flex-1 rounded-2xl border border-input bg-surface-2 px-3 text-sm outline-none focus:border-brand"
+                className="h-10 min-w-0 flex-1 rounded-[12px] border border-white/10 bg-white/[0.035] px-3 text-sm outline-none transition-colors focus:border-brand/60"
               />
               <button
                 type="button"
@@ -145,7 +149,7 @@ function SettingsPage() {
                         : toast.success("Check your new email to confirm the change"),
                     )
                 }
-                className="grid h-10 w-10 place-items-center rounded-2xl bg-brand text-brand-foreground press disabled:opacity-50"
+                className="grid h-10 w-10 place-items-center rounded-[12px] bg-brand text-brand-foreground press disabled:opacity-50"
                 aria-label="Change email"
               >
                 <KeyRound className="h-4 w-4" />
@@ -158,7 +162,7 @@ function SettingsPage() {
                 onChange={(event) => setNewPassword(event.target.value)}
                 placeholder="New password"
                 minLength={8}
-                className="h-10 min-w-0 flex-1 rounded-2xl border border-input bg-surface-2 px-3 text-sm outline-none focus:border-brand"
+                className="h-10 min-w-0 flex-1 rounded-[12px] border border-white/10 bg-white/[0.035] px-3 text-sm outline-none transition-colors focus:border-brand/60"
               />
               <button
                 type="button"
@@ -172,7 +176,7 @@ function SettingsPage() {
                         : (setNewPassword(""), toast.success("Password updated")),
                     )
                 }
-                className="grid h-10 w-10 place-items-center rounded-2xl border border-border press disabled:opacity-50"
+                className="grid h-10 w-10 place-items-center rounded-[12px] border border-white/10 press disabled:opacity-50"
                 aria-label="Change password"
               >
                 <KeyRound className="h-4 w-4" />
@@ -197,7 +201,7 @@ function SettingsPage() {
                     })
                     .catch(() => toast.error("Couldn't export your account"))
                 }
-                className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-xs font-semibold press hover:bg-surface-2"
+                className="inline-flex items-center gap-2 rounded-[11px] border border-white/10 px-3 py-2 text-xs font-semibold press hover:bg-white/[0.07]"
               >
                 <Download className="h-3.5 w-3.5" /> Export data
               </button>
@@ -214,7 +218,7 @@ function SettingsPage() {
                     })
                     .catch(() => toast.error("Couldn't delete your account"));
                 }}
-                className="inline-flex items-center gap-2 rounded-full border border-destructive/40 px-3 py-2 text-xs font-semibold text-destructive press hover:bg-destructive/10"
+                className="inline-flex items-center gap-2 rounded-[11px] border border-destructive/40 px-3 py-2 text-xs font-semibold text-destructive press hover:bg-destructive/10"
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete account
               </button>
@@ -239,7 +243,7 @@ function SettingsPage() {
                         })
                         .catch(() => toast.error("Couldn't unblock"))
                     }
-                    className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold press hover:bg-surface-2"
+                    className="rounded-[10px] border border-white/10 px-3 py-1.5 text-xs font-semibold press hover:bg-white/[0.07]"
                   >
                     Unblock
                   </button>
@@ -257,11 +261,11 @@ function SettingsPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="px-4 pt-6">
-      <h2 className="pb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+    <section className="px-4 pt-7 md:px-5">
+      <h2 className="pb-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
         {title}
       </h2>
-      <div className="rounded-3xl border border-border bg-surface p-2">{children}</div>
+      <div className="rounded-[20px] border border-white/10 bg-white/[0.025] p-2">{children}</div>
     </section>
   );
 }
@@ -322,7 +326,7 @@ function Choice({
             type="button"
             onClick={() => onChange(o)}
             className={cn(
-              "rounded-full border px-3 py-1.5 text-xs font-semibold capitalize press",
+              "rounded-[10px] border px-3 py-1.5 text-xs font-semibold capitalize press",
               value === o
                 ? "border-brand bg-brand-soft text-foreground"
                 : "border-border bg-surface-2 text-muted-foreground",

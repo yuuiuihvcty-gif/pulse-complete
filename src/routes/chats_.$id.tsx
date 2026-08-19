@@ -20,7 +20,6 @@ import { SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { Message, Reaction } from "@/lib/types";
 import { PageBackground } from "@/components/pulse/PageBackground";
-import bgchatBg from "@/assets/bg-chat.jpeg.asset.json";
 import {
   deleteMessage,
   editMessage,
@@ -346,14 +345,14 @@ function Thread() {
 
   return (
     <div className="relative flex h-[100dvh] flex-col">
-      <PageBackground src={bgchatBg.url} />
+      <PageBackground />
       {/* HEADER — shared layout animation from the chat list row */}
-      <header className="z-30 flex items-center gap-3 border-b border-border bg-surface/90 px-2 py-2 backdrop-blur-xl">
+      <header className="z-30 flex items-center gap-3 border-b border-white/8 bg-background/82 px-2 py-2.5 backdrop-blur-2xl md:px-4">
         <button
           type="button"
           aria-label="Back to chats"
           onClick={() => void navigate({ to: "/chats" })}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full press hover:bg-surface-2"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-[13px] border border-white/10 bg-white/[0.035] press hover:bg-white/[0.07]"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
@@ -363,7 +362,7 @@ function Thread() {
         <div className="min-w-0 flex-1">
           <motion.p
             layoutId={`title-${id}`}
-            className="truncate font-display text-[16px] font-semibold"
+            className="truncate font-display text-[16px] font-semibold tracking-[-0.02em]"
           >
             {conversation.data?.name ?? other?.display_name ?? "Conversation"}
           </motion.p>
@@ -393,21 +392,21 @@ function Thread() {
           type="button"
           aria-label="Search in conversation"
           onClick={() => setSearchOpen((v) => !v)}
-          className="grid h-10 w-10 place-items-center rounded-full press hover:bg-surface-2"
+          className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 bg-white/[0.035] press hover:bg-white/[0.07]"
         >
           {searchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
         </button>
         <Link
           to="/calls"
           aria-label="Voice call"
-          className="grid h-10 w-10 place-items-center rounded-full press hover:bg-surface-2"
+          className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 bg-white/[0.035] press hover:bg-white/[0.07]"
         >
           <Phone className="h-5 w-5" />
         </Link>
         <Link
           to="/calls"
           aria-label="Video call"
-          className="hidden h-10 w-10 place-items-center rounded-full press hover:bg-surface-2 sm:grid"
+          className="hidden h-10 w-10 place-items-center rounded-[13px] border border-white/10 bg-white/[0.035] press hover:bg-white/[0.07] sm:grid"
         >
           <Video className="h-5 w-5" />
         </Link>
@@ -419,7 +418,7 @@ function Thread() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-b border-border bg-surface px-3"
+            className="overflow-hidden border-b border-white/8 bg-background/90 px-3"
           >
             <input
               autoFocus
@@ -439,11 +438,7 @@ function Thread() {
           const el = e.currentTarget;
           setAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 120);
         }}
-        className={cn(
-          "relative flex-1 overflow-y-auto scrollbar-slim",
-          `wp-${settings?.wallpaper ?? "aurora"}`,
-          "wallpaper",
-        )}
+        className={cn("relative flex-1 overflow-y-auto scrollbar-slim", "bg-background")}
       >
         {messages.isLoading ? (
           <BubbleSkeleton />
@@ -456,14 +451,14 @@ function Thread() {
             }
           />
         ) : (
-          <div className="mx-auto w-full max-w-3xl space-y-1 px-2 py-4">
+          <div className="mx-auto w-full max-w-3xl space-y-1 px-3 py-5 md:px-5 md:py-6">
             {hasOlder && !searchOpen && (
               <div className="flex justify-center pb-3">
                 <button
                   type="button"
                   onClick={() => void loadOlder()}
                   disabled={loadingOlder}
-                  className="rounded-full border border-border bg-surface/80 px-4 py-2 text-xs font-semibold text-muted-foreground shadow-soft backdrop-blur press hover:bg-surface-2 disabled:cursor-wait disabled:opacity-60"
+                  className="rounded-[11px] border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-muted-foreground shadow-soft backdrop-blur press hover:bg-white/[0.07] disabled:cursor-wait disabled:opacity-60"
                 >
                   {loadingOlder ? "Loading older messages…" : "Load older messages"}
                 </button>
@@ -478,7 +473,7 @@ function Thread() {
                 <div key={m.id}>
                   {newDay && (
                     <div className="my-4 flex justify-center">
-                      <span className="rounded-full border border-border bg-surface/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur">
+                      <span className="rounded-[9px] border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground backdrop-blur">
                         {dayLabel(m.created_at)}
                       </span>
                     </div>
@@ -515,7 +510,7 @@ function Thread() {
                 setAtBottom(true);
                 bottom.current?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="sticky bottom-4 left-full mr-4 grid h-11 w-11 place-items-center rounded-full bg-surface text-foreground shadow-float"
+              className="sticky bottom-4 left-full mr-4 grid h-11 w-11 place-items-center rounded-[13px] border border-white/10 bg-white/[0.08] text-foreground shadow-float backdrop-blur press"
             >
               <ChevronDown className="h-5 w-5" />
             </motion.button>
@@ -540,13 +535,13 @@ function Thread() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 grid place-items-center bg-background/70 p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-50 grid place-items-center bg-background/82 p-4 backdrop-blur-2xl"
           >
             <div
               role="dialog"
               aria-modal="true"
               aria-label="Forward message"
-              className="w-full max-w-md rounded-3xl border border-border bg-surface p-4 shadow-float"
+              className="w-full max-w-md rounded-[22px] border border-white/10 bg-surface p-4 shadow-float"
             >
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
@@ -557,13 +552,13 @@ function Thread() {
                   type="button"
                   aria-label="Close forward dialog"
                   onClick={() => setForwarding(null)}
-                  className="grid h-9 w-9 place-items-center rounded-full press hover:bg-surface-2"
+                  className="grid h-9 w-9 place-items-center rounded-[11px] border border-white/10 press hover:bg-white/[0.07]"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
               {forwardTargets.length === 0 ? (
-                <p className="rounded-2xl bg-surface-2 p-4 text-sm text-muted-foreground">
+                <p className="rounded-[14px] border border-white/8 bg-white/[0.035] p-4 text-sm text-muted-foreground">
                   Start another conversation before forwarding.
                 </p>
               ) : (
@@ -590,7 +585,7 @@ function Thread() {
                             })
                             .catch(() => toast.error("Couldn't forward that message"));
                         }}
-                        className="flex w-full items-center gap-3 rounded-2xl p-2 text-left press hover:bg-surface-2"
+                        className="flex w-full items-center gap-3 rounded-[14px] p-2.5 text-left press hover:bg-white/[0.06]"
                       >
                         <PulseAvatar profile={target.other} size="md" showPresence />
                         <span className="min-w-0 flex-1 truncate text-sm font-semibold">

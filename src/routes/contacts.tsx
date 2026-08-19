@@ -19,7 +19,6 @@ import {
 import { SPRING } from "@/lib/motion";
 import type { Profile } from "@/lib/types";
 import { PageBackground } from "@/components/pulse/PageBackground";
-import bgcontactsBg from "@/assets/bg-contacts.jpeg.asset.json";
 
 export const Route = createFileRoute("/contacts")({
   head: () => ({
@@ -105,17 +104,20 @@ function ContactsPage() {
 
   return (
     <div className="relative min-h-screen md:flex">
-      <PageBackground src={bgcontactsBg.url} />
+      <PageBackground />
       <SideRail />
       <div className="mx-auto w-full max-w-2xl pb-24 md:pb-6">
-        <header className="sticky top-0 z-30 border-b border-border bg-surface/85 px-4 pb-3 pt-5 backdrop-blur-xl">
-          <h1 className="font-display text-[26px] font-bold tracking-tight">Contacts</h1>
+        <header className="sticky top-0 z-30 border-b border-white/8 bg-background/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-cyan">
+            PULSE / PEOPLE
+          </p>
+          <h1 className="font-display text-[30px] font-semibold tracking-[-0.06em]">Contacts</h1>
           <p className="text-xs text-muted-foreground">
             {contacts.data?.length
               ? `${contacts.data.length} saved on Pulse`
               : "Search by name or @username"}
           </p>
-          <label className="mt-3 flex items-center gap-2 rounded-full border border-input bg-surface-2 px-3">
+          <label className="mt-5 flex items-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.035] px-3 transition-colors focus-within:border-cyan/60">
             <Search className="h-4 w-4 text-muted-foreground" />
             <input
               value={term}
@@ -140,7 +142,7 @@ function ContactsPage() {
             }
           />
         ) : (
-          <div className="p-2">
+          <div className="p-3">
             {filtered.length > 0 && (
               <ul className="space-y-1">
                 {filtered.map((p) => (
@@ -157,7 +159,7 @@ function ContactsPage() {
 
             {discovered.length > 0 && (
               <>
-                <h2 className="px-3 pb-2 pt-5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                <h2 className="px-3 pb-2 pt-6 text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
                   On Pulse
                 </h2>
                 <ul className="space-y-1">
@@ -198,7 +200,7 @@ function Row({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={SPRING.layout}
-      className="flex items-center gap-3 rounded-3xl p-3 hover:bg-surface-2"
+      className="flex items-center gap-3 rounded-[18px] border border-transparent p-3.5 hover:border-white/8 hover:bg-white/[0.035]"
     >
       <PulseAvatar profile={profile} size="lg" showPresence showMood />
       <button type="button" onClick={onOpen} className="min-w-0 flex-1 text-left press">
@@ -213,7 +215,7 @@ function Row({
         type="button"
         aria-label={`Message ${profile.display_name}`}
         onClick={onOpen}
-        className="grid h-10 w-10 place-items-center rounded-full bg-brand text-brand-foreground press"
+        className="grid h-10 w-10 place-items-center rounded-[13px] bg-brand text-brand-foreground press"
       >
         <MessageCircle className="h-4 w-4" />
       </button>
@@ -221,7 +223,7 @@ function Row({
         type="button"
         aria-label={saved ? `Remove ${profile.display_name}` : `Save ${profile.display_name}`}
         onClick={onToggle}
-        className="grid h-10 w-10 place-items-center rounded-full border border-border press hover:bg-surface-2"
+        className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 press hover:bg-white/[0.07]"
       >
         {saved ? <UserMinus className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
       </button>

@@ -36,7 +36,7 @@ function MediaThumb({
     <button
       type="button"
       onClick={onOpen}
-      className="relative block w-56 overflow-hidden rounded-2xl press sm:w-64"
+      className="relative block w-56 overflow-hidden rounded-[16px] border border-white/10 press sm:w-64"
     >
       {url ? (
         type === "image" ? (
@@ -49,7 +49,7 @@ function MediaThumb({
       )}
       {type === "video" && (
         <span className="absolute inset-0 grid place-items-center">
-          <span className="grid h-11 w-11 place-items-center rounded-full bg-foreground/55 text-background">
+          <span className="grid h-11 w-11 place-items-center rounded-[13px] bg-foreground/65 text-background">
             ▶
           </span>
         </span>
@@ -67,11 +67,11 @@ function FileCard({ message, mine }: { message: Message; mine: boolean }) {
       target="_blank"
       rel="noreferrer"
       className={cn(
-        "flex w-56 items-center gap-3 rounded-2xl p-2",
+        "flex w-56 items-center gap-3 rounded-[14px] border border-white/8 p-2",
         mine ? "bg-bubble-out-foreground/12" : "bg-secondary",
       )}
     >
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[11px] bg-brand-soft text-brand">
         <FileText className="h-5 w-5" />
       </span>
       <span className="min-w-0">
@@ -181,7 +181,7 @@ export function MessageBubble({
       }}
       transition={{ type: "spring", stiffness: 340, damping: 26, mass: 0.6 }}
       className={cn(
-        "group relative flex gap-2 rounded-3xl px-1 py-0.5",
+        "group relative flex gap-2 rounded-[18px] px-1 py-0.5",
         mine ? "justify-end" : "justify-start",
       )}
     >
@@ -207,7 +207,7 @@ export function MessageBubble({
             "relative px-3.5 py-2.5 shadow-bubble",
             mine
               ? "bubble-out-shape bg-bubble-out text-bubble-out-foreground"
-              : "bubble-in-shape border border-border bg-bubble-in text-bubble-in-foreground",
+              : "bubble-in-shape border border-white/10 bg-bubble-in text-bubble-in-foreground",
           )}
         >
           {message.pinned && (
@@ -302,7 +302,7 @@ export function MessageBubble({
                 initial={{ scale: 0.4, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 520, damping: 16 }}
-                className="flex items-center gap-1 rounded-full border border-border bg-surface px-1.5 py-0.5 text-xs shadow-soft press"
+                className="flex items-center gap-1 rounded-[9px] border border-white/10 bg-surface px-1.5 py-0.5 text-xs shadow-soft press"
               >
                 <span>{emoji}</span>
                 {count > 1 && <span className="text-[10px] text-muted-foreground">{count}</span>}
@@ -330,7 +330,7 @@ export function MessageBubble({
                 exit={{ opacity: 0, y: 6, scale: 0.94 }}
                 transition={{ type: "spring", stiffness: 420, damping: 26 }}
                 className={cn(
-                  "absolute bottom-full z-50 mb-2 w-max rounded-3xl border border-border bg-popover p-2 shadow-float",
+                  "absolute bottom-full z-50 mb-2 w-max rounded-[18px] border border-white/10 bg-popover p-2 shadow-float",
                   mine ? "right-0" : "left-0",
                 )}
               >
@@ -347,7 +347,7 @@ export function MessageBubble({
                         actions.onReact(emoji);
                         setMenu(false);
                       }}
-                      className="grid h-9 w-9 place-items-center rounded-full text-lg hover:bg-secondary"
+                      className="grid h-9 w-9 place-items-center rounded-[10px] text-lg hover:bg-secondary"
                     >
                       {emoji}
                     </motion.button>
@@ -356,7 +356,7 @@ export function MessageBubble({
                     type="button"
                     aria-label="More emoji"
                     onClick={() => setMore((v) => !v)}
-                    className="grid h-9 w-9 place-items-center rounded-full bg-secondary press"
+                    className="grid h-9 w-9 place-items-center rounded-[10px] bg-secondary press"
                   >
                     <Plus className="h-4 w-4" />
                   </button>
@@ -409,7 +409,7 @@ export function MessageBubble({
                         setMenu(false);
                       }}
                       className={cn(
-                        "flex items-center gap-2 rounded-xl px-3 py-2 text-left hover:bg-secondary",
+                        "flex items-center gap-2 rounded-[10px] px-3 py-2 text-left hover:bg-secondary",
                         label === "Delete" && "text-destructive",
                       )}
                     >

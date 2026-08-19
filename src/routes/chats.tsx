@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils";
 import type { ConversationSummary } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
 import { PageBackground } from "@/components/pulse/PageBackground";
-import bgchatsBg from "@/assets/bg-chats.jpeg.asset.json";
 
 export const Route = createFileRoute("/chats")({
   head: () => ({
@@ -89,13 +88,16 @@ function ChatsPage() {
 
   return (
     <div className="relative min-h-screen md:flex">
-      <PageBackground src={bgchatsBg.url} />
+      <PageBackground />
       <SideRail unread={unread} />
       <div className="relative mx-auto w-full max-w-2xl pb-24 md:pb-6">
-        <header className="sticky top-0 z-30 border-b border-border bg-surface/85 px-4 pb-3 pt-5 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 border-b border-white/8 bg-background/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h1 className="font-display text-[26px] font-bold tracking-tight">Chats</h1>
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-brand">
+                PULSE / INBOX
+              </p>
+              <h1 className="font-display text-[30px] font-semibold tracking-[-0.06em]">Chats</h1>
               <p className="text-xs text-muted-foreground">
                 {profile?.display_name
                   ? `Signed in as ${profile.display_name}`
@@ -106,14 +108,14 @@ function ChatsPage() {
               <Link
                 to="/search"
                 aria-label="Search people and messages"
-                className="grid h-10 w-10 place-items-center rounded-full press hover:bg-surface-2"
+                className="grid h-10 w-10 place-items-center rounded-[14px] border border-white/10 bg-white/[0.035] press hover:bg-white/[0.07]"
               >
                 <Search className="h-5 w-5" />
               </Link>
               <PulseAvatar profile={profile} size="md" showPresence showMood />
             </div>
           </div>
-          <label className="mt-3 flex items-center gap-2 rounded-full border border-input bg-surface-2 px-3">
+          <label className="mt-5 flex items-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.035] px-3 transition-colors focus-within:border-brand/50">
             <Search className="h-4 w-4 text-muted-foreground" />
             <input
               value={term}
@@ -139,7 +141,7 @@ function ChatsPage() {
               !term && (
                 <Link
                   to="/contacts"
-                  className="inline-flex h-11 items-center gap-2 rounded-full bg-brand px-5 text-sm font-semibold text-brand-foreground shadow-soft press"
+                  className="inline-flex h-11 items-center gap-2 rounded-[14px] bg-brand px-5 text-sm font-semibold text-brand-foreground shadow-soft press"
                 >
                   <Plus className="h-4 w-4" /> Start chatting
                 </Link>
@@ -147,7 +149,7 @@ function ChatsPage() {
             }
           />
         ) : (
-          <motion.ul layout className="space-y-1 p-2">
+          <motion.ul layout className="space-y-1 p-2 md:p-3">
             <AnimatePresence initial={false}>
               {rows.map((c) => (
                 <ChatRow key={c.id} conv={c} />
@@ -196,7 +198,7 @@ function ChatRow({ conv }: { conv: ConversationSummary }) {
       <Link
         to="/chats/$id"
         params={{ id: conv.id }}
-        className="flex items-center gap-3 rounded-3xl p-3 press hover:bg-surface-2"
+        className="group flex items-center gap-3 rounded-[18px] border border-transparent p-3.5 press hover:border-white/8 hover:bg-white/[0.035]"
       >
         <motion.span layoutId={`avatar-${conv.id}`} className="relative">
           <PulseAvatar profile={conv.other} size="lg" showPresence showMood />
@@ -205,7 +207,7 @@ function ChatRow({ conv }: { conv: ConversationSummary }) {
           <span className="flex items-center gap-2">
             <motion.span
               layoutId={`title-${conv.id}`}
-              className="truncate font-display text-[16px] font-semibold"
+              className="truncate font-display text-[15px] font-semibold"
             >
               {name}
             </motion.span>
@@ -223,7 +225,7 @@ function ChatRow({ conv }: { conv: ConversationSummary }) {
           </span>
         </span>
         <span className="flex flex-col items-end gap-1.5">
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-[10px] font-medium text-muted-foreground">
             {chatListTime(conv.last_message_at)}
           </span>
           {conv.unread > 0 && (
@@ -232,7 +234,7 @@ function ChatRow({ conv }: { conv: ConversationSummary }) {
               animate={{ scale: 1 }}
               transition={SPRING.pop}
               className={cn(
-                "grid h-5 min-w-5 place-items-center rounded-full bg-coral px-1.5 text-[11px] font-bold text-background",
+                "grid h-5 min-w-5 place-items-center rounded-full bg-coral px-1.5 text-[11px] font-bold text-foreground",
               )}
             >
               {conv.unread > 99 ? "99+" : conv.unread}

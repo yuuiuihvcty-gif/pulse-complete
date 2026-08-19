@@ -25,7 +25,6 @@ import { SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { Profile, Story } from "@/lib/types";
 import { PageBackground } from "@/components/pulse/PageBackground";
-import bgupdatesBg from "@/assets/bg-updates.jpeg.asset.json";
 
 export const Route = createFileRoute("/updates")({
   head: () => ({
@@ -127,18 +126,21 @@ function UpdatesPage() {
 
   return (
     <div className="relative min-h-screen md:flex">
-      <PageBackground src={bgupdatesBg.url} />
+      <PageBackground />
       <SideRail />
       <div className="mx-auto w-full max-w-2xl pb-24 md:pb-6">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-surface/85 px-4 pb-3 pt-5 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/8 bg-background/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
           <div>
-            <h1 className="font-display text-[26px] font-bold tracking-tight">Updates</h1>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-amber">
+              PULSE / NOW
+            </p>
+            <h1 className="font-display text-[30px] font-semibold tracking-[-0.06em]">Updates</h1>
             <p className="text-xs text-muted-foreground">Gone in 24 hours</p>
           </div>
           <button
             type="button"
             onClick={() => setComposing((v) => !v)}
-            className="grid h-11 w-11 place-items-center rounded-full bg-brand text-brand-foreground shadow-soft press"
+            className="grid h-11 w-11 place-items-center rounded-[14px] bg-brand text-brand-foreground shadow-soft press"
             aria-label="Share an update"
           >
             {composing ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
@@ -151,7 +153,7 @@ function UpdatesPage() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden border-b border-border bg-surface px-4 py-4"
+              className="overflow-hidden border-b border-white/8 bg-surface/60 px-4 py-5 md:px-6"
             >
               <textarea
                 value={text}
@@ -160,7 +162,7 @@ function UpdatesPage() {
                 maxLength={280}
                 placeholder="What's happening right now?"
                 aria-label="Update text"
-                className="w-full resize-none rounded-2xl border border-input bg-surface-2 px-4 py-3 text-sm outline-none focus:border-brand placeholder:text-muted-foreground"
+                className="w-full resize-none rounded-[16px] border border-white/10 bg-white/[0.035] px-4 py-3 text-sm outline-none transition-colors focus:border-brand/60 placeholder:text-muted-foreground"
               />
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -171,7 +173,7 @@ function UpdatesPage() {
                       type="button"
                       onClick={() => setAudience(option)}
                       className={cn(
-                        "rounded-full border px-2.5 py-1 font-semibold capitalize press",
+                        "rounded-[10px] border px-2.5 py-1 font-semibold capitalize press",
                         audience === option
                           ? "border-brand bg-brand-soft text-foreground"
                           : "border-border",
@@ -187,7 +189,7 @@ function UpdatesPage() {
                     type="button"
                     onClick={() => setBackground(b)}
                     className={cn(
-                      "rounded-full border px-3 py-1.5 text-xs font-semibold capitalize press",
+                      "rounded-[10px] border px-3 py-1.5 text-xs font-semibold capitalize press",
                       background === b
                         ? "border-brand bg-brand-soft"
                         : "border-border bg-surface-2 text-muted-foreground",
@@ -196,7 +198,7 @@ function UpdatesPage() {
                     {b}
                   </button>
                 ))}
-                <label className="ml-auto grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-border press hover:bg-surface-2">
+                <label className="ml-auto grid h-10 w-10 cursor-pointer place-items-center rounded-[12px] border border-white/10 press hover:bg-white/[0.07]">
                   <ImagePlus className="h-4 w-4" />
                   <span className="sr-only">Add a photo or video</span>
                   <input
@@ -222,7 +224,7 @@ function UpdatesPage() {
                       audience,
                     })
                   }
-                  className="h-10 rounded-full bg-brand px-5 text-sm font-semibold text-brand-foreground press disabled:opacity-50"
+                  className="h-10 rounded-[12px] bg-brand px-5 text-sm font-semibold text-brand-foreground press disabled:opacity-50"
                 >
                   Share
                 </button>
@@ -240,7 +242,7 @@ function UpdatesPage() {
             description="Share the first one — it disappears after 24 hours."
           />
         ) : (
-          <ul className="space-y-1 p-2">
+          <ul className="space-y-1 p-3 md:p-4">
             {grouped.map((g) => (
               <motion.li
                 layout
@@ -248,7 +250,7 @@ function UpdatesPage() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={SPRING.layout}
-                className="flex items-center gap-3 rounded-3xl p-3 hover:bg-surface-2"
+                className="flex items-center gap-3 rounded-[18px] border border-transparent p-3.5 hover:border-white/8 hover:bg-white/[0.035]"
               >
                 <button
                   type="button"
@@ -283,7 +285,7 @@ function UpdatesPage() {
                         })
                         .catch(() => toast.error("Couldn't delete that update"))
                     }
-                    className="grid h-10 w-10 place-items-center rounded-full border border-border press hover:bg-surface-2"
+                    className="grid h-10 w-10 place-items-center rounded-[13px] border border-white/10 press hover:bg-white/[0.07]"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -350,7 +352,7 @@ function StoryViewer({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 grid place-items-center bg-background/95 p-4 backdrop-blur-xl"
+      className="fixed inset-0 z-50 grid place-items-center bg-background/96 p-4 backdrop-blur-2xl"
       role="dialog"
       aria-label="Update"
     >
@@ -358,7 +360,7 @@ function StoryViewer({
         type="button"
         onClick={onClose}
         aria-label="Close update"
-        className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-surface press"
+        className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-[14px] border border-white/10 bg-white/[0.06] press"
       >
         <X className="h-5 w-5" />
       </button>
@@ -374,7 +376,7 @@ function StoryViewer({
         </div>
         <div
           className={cn(
-            "grid min-h-[60vh] place-items-center overflow-hidden rounded-3xl border border-border p-6 text-center",
+            "grid min-h-[60vh] place-items-center overflow-hidden rounded-[24px] border border-white/10 p-6 text-center shadow-float",
             `wp-${story.background ?? "aurora"}`,
             "wallpaper",
           )}

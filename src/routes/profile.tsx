@@ -15,7 +15,6 @@ import { MOODS } from "@/lib/types";
 import { SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { PageBackground } from "@/components/pulse/PageBackground";
-import bgyouBg from "@/assets/bg-you.jpeg.asset.json";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -94,15 +93,20 @@ function ProfilePage() {
 
   return (
     <div className="relative min-h-screen md:flex">
-      <PageBackground src={bgyouBg.url} />
+      <PageBackground />
       <SideRail />
       <div className="mx-auto w-full max-w-2xl pb-28 md:pb-10">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-surface/85 px-4 pb-3 pt-5 backdrop-blur-xl">
-          <h1 className="font-display text-[26px] font-bold tracking-tight">You</h1>
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/8 bg-background/82 px-4 pb-4 pt-5 backdrop-blur-2xl md:px-6">
+          <div>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-brand">
+              PULSE / IDENTITY
+            </p>
+            <h1 className="font-display text-[30px] font-semibold tracking-[-0.06em]">You</h1>
+          </div>
           <Link
             to="/settings"
             aria-label="Settings"
-            className="grid h-10 w-10 place-items-center rounded-full press hover:bg-surface-2"
+            className="grid h-10 w-10 place-items-center rounded-[14px] border border-white/10 bg-white/[0.035] press hover:bg-white/[0.07]"
           >
             <SettingsIcon className="h-5 w-5" />
           </Link>
@@ -112,7 +116,7 @@ function ProfilePage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={SPRING.cinematic}
-          className="flex flex-col items-center px-4 py-8"
+          className="flex flex-col items-center border-b border-white/8 px-4 py-10"
         >
           <div className="relative">
             <PulseAvatar profile={profile} size="xl" showPresence showMood ring="brand" />
@@ -120,7 +124,7 @@ function ProfilePage() {
               type="button"
               aria-label="Change profile photo"
               onClick={() => fileRef.current?.click()}
-              className="absolute bottom-0 right-0 grid h-10 w-10 place-items-center rounded-full bg-brand text-brand-foreground shadow-float press"
+              className="absolute bottom-0 right-0 grid h-10 w-10 place-items-center rounded-[13px] bg-brand text-brand-foreground shadow-float press"
             >
               <Camera className="h-4 w-4" />
             </button>
@@ -136,20 +140,22 @@ function ProfilePage() {
               }}
             />
           </div>
-          <p className="mt-4 font-display text-xl font-semibold">{profile?.display_name}</p>
+          <p className="mt-5 font-display text-2xl font-semibold tracking-[-0.05em]">
+            {profile?.display_name}
+          </p>
           <p className="text-sm text-muted-foreground">@{profile?.username}</p>
           <p className="mt-1 text-xs font-semibold tracking-[0.16em] text-brand">
             IDE {profile?.ide}
           </p>
         </motion.section>
 
-        <section className="space-y-4 px-4">
+        <section className="space-y-5 px-4 py-6 md:px-6">
           <Field label="Display name">
             <input
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               maxLength={40}
-              className="h-11 w-full rounded-2xl border border-input bg-surface-2 px-4 text-sm outline-none focus:border-brand"
+              className="h-11 w-full rounded-[13px] border border-white/10 bg-white/[0.035] px-4 text-sm outline-none transition-colors focus:border-brand/60"
             />
           </Field>
           <Field label="About">
@@ -159,7 +165,7 @@ function ProfilePage() {
               rows={2}
               maxLength={140}
               placeholder="Say something about you"
-              className="w-full resize-none rounded-2xl border border-input bg-surface-2 px-4 py-3 text-sm outline-none focus:border-brand placeholder:text-muted-foreground"
+              className="w-full resize-none rounded-[13px] border border-white/10 bg-white/[0.035] px-4 py-3 text-sm outline-none transition-colors focus:border-brand/60 placeholder:text-muted-foreground"
             />
           </Field>
           <Field label="Phone">
@@ -168,7 +174,7 @@ function ProfilePage() {
               onChange={(e) => setPhone(e.target.value)}
               inputMode="tel"
               placeholder="Optional"
-              className="h-11 w-full rounded-2xl border border-input bg-surface-2 px-4 text-sm outline-none focus:border-brand placeholder:text-muted-foreground"
+              className="h-11 w-full rounded-[13px] border border-white/10 bg-white/[0.035] px-4 text-sm outline-none transition-colors focus:border-brand/60 placeholder:text-muted-foreground"
             />
           </Field>
 
@@ -183,7 +189,7 @@ function ProfilePage() {
                   type="button"
                   onClick={() => save.mutate({ mood: profile?.mood === m.key ? null : m.key })}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-full border px-3 py-2 text-sm press",
+                    "flex items-center gap-1.5 rounded-[12px] border px-3 py-2 text-sm press",
                     profile?.mood === m.key
                       ? "border-brand bg-brand-soft text-foreground"
                       : "border-border bg-surface-2 text-muted-foreground",
@@ -206,7 +212,7 @@ function ProfilePage() {
                 phone: phone.trim() || null,
               })
             }
-            className="h-12 w-full rounded-full bg-brand text-sm font-semibold text-brand-foreground shadow-soft press disabled:opacity-50"
+            className="h-12 w-full rounded-[14px] bg-brand text-sm font-semibold text-brand-foreground shadow-soft press disabled:opacity-50"
           >
             {save.isPending ? "Saving…" : "Save changes"}
           </button>
@@ -214,7 +220,7 @@ function ProfilePage() {
           <button
             type="button"
             onClick={() => void signOut()}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-border text-sm font-semibold text-muted-foreground press hover:bg-surface-2"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-[14px] border border-white/10 text-sm font-semibold text-muted-foreground press hover:bg-white/[0.07]"
           >
             <LogOut className="h-4 w-4" /> Sign out
           </button>

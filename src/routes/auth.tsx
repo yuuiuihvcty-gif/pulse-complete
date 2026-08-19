@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowRight, AtSign, Check, KeyRound, Mail, User } from "lucide-react";
+import { ArrowUpRight, AtSign, Check, KeyRound, Mail, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -9,30 +9,23 @@ import { useSession } from "@/hooks/use-session";
 import { SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { PageBackground } from "@/components/pulse/PageBackground";
-import bgauthBg from "@/assets/bg-auth.jpeg.asset.json";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in to Pulse — The Living Messenger" },
+      { title: "Pulse — Conversations that move" },
       {
         name: "description",
-        content:
-          "Join Pulse, the illustrated messenger where every message, reaction and voice note feels alive.",
+        content: "A considered space for conversations, updates, and the people who matter.",
       },
-      { property: "og:title", content: "Sign in to Pulse — The Living Messenger" },
-      {
-        property: "og:description",
-        content: "Join Pulse, the illustrated messenger where messaging feels alive.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: AuthPage,
 });
 
 type Field = "email" | "password" | "name" | "username" | null;
+
+type AuthForm = { email: string; password: string; name: string; username: string };
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -42,21 +35,20 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [needsConfirm, setNeedsConfirm] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "", name: "", username: "" });
+  const [form, setForm] = useState<AuthForm>({ email: "", password: "", name: "", username: "" });
 
-  // Session is the source of truth: as soon as one exists, go to the app.
   useEffect(() => {
     if (!user) return;
-    const t = setTimeout(() => void navigate({ to: "/chats", replace: true }), 450);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => void navigate({ to: "/chats", replace: true }), 450);
+    return () => clearTimeout(timer);
   }, [user, navigate]);
 
+  const set = (key: keyof AuthForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((current) => ({ ...current, [key]: event.target.value }));
+  };
 
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (busy) return;
     setBusy(true);
     try {
@@ -67,8 +59,11 @@ function AuthPage() {
         });
         if (error) throw error;
       } else {
-        const username = form.username.trim().replace(/[^a-zA-Z0-9_]/g, "").toLowerCase();
-        if (!form.name.trim() || !username) throw new Error("Add your name and a username first");
+        const username = form.username
+          .trim()
+          .replace(/[^a-zA-Z0-9_]/g, "")
+          .toLowerCase();
+        if (!form.name.trim() || !username) throw new Error("Add your name and username first");
         const { data, error } = await supabase.auth.signUp({
           email: form.email.trim(),
           password: form.password,
@@ -79,15 +74,15 @@ function AuthPage() {
         });
         if (error) throw error;
         if (!data.session) {
-          setBusy(false);
           setNeedsConfirm(true);
           toast.success("Almost there — check your email to confirm your account.");
+          setBusy(false);
           return;
         }
       }
       setDone(true);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "That didn't work. Try again?");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "That didn't work. Try again?");
       setBusy(false);
     }
   };
@@ -104,40 +99,79 @@ function AuthPage() {
         setBusy(false);
         return;
       }
-      if (result.redirected) return;
-      setDone(true);
+      if (!result.redirected) setDone(true);
     } catch {
       toast.error("Google sign-in isn't available right now");
       setBusy(false);
     }
   };
 
+  const forgotPassword = async () => {
+    if (!form.email.trim()) {
+      toast.error("Enter your email first");
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(form.email.trim(), {
+      redirectTo: `${window.location.origin}/settings`,
+    });
+    if (error) toast.error(error.message);
+    else toast.success("Password reset link sent");
+  };
 
   return (
-    <div className="relative min-h-screen">
-      <PageBackground src={bgauthBg.url} />
-      <main className="relative mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-5 py-10">
-        {/* UI — authentication panel over the illustrated background */}
-        <section className="relative rounded-[28px] border border-border bg-surface/85 p-5 shadow-float backdrop-blur-xl">
+    <div className="pulse-field relative min-h-screen overflow-hidden">
+      <PageBackground />
+      <div className="pointer-events-none absolute inset-0 opacity-70" aria-hidden>
+        <span className="pulse-field-line left-[-12%] top-[30%]" />
+        <span className="pulse-field-line left-[28%] top-[62%] rotate-[9deg] opacity-30" />
+        <span className="absolute left-[13%] top-[17%] h-1.5 w-1.5 rounded-full bg-brand animate-signal" />
+        <span className="absolute right-[17%] top-[38%] h-1.5 w-1.5 rounded-full bg-cyan animate-signal [animation-delay:800ms]" />
+        <span className="absolute bottom-[24%] left-[27%] h-1.5 w-1.5 rounded-full bg-amber animate-signal [animation-delay:1.3s]" />
+      </div>
+      <main className="relative mx-auto grid min-h-screen w-full max-w-6xl items-center gap-12 px-5 py-10 sm:px-8 lg:grid-cols-[1fr_420px] lg:gap-24 lg:px-14">
+        <section className="hidden lg:block">
+          <p className="mb-10 font-display text-sm font-semibold tracking-[0.32em] text-brand">
+            PULSE / 01
+          </p>
+          <h1 className="max-w-xl font-display text-6xl font-semibold leading-[0.96] tracking-[-0.07em] text-balance xl:text-7xl">
+            Conversations
+            <span className="block text-brand">that move.</span>
+          </h1>
+          <p className="mt-8 max-w-md text-lg leading-relaxed text-muted-foreground">
+            A calmer space for the people, messages, and small moments that keep your world in
+            motion.
+          </p>
+          <div className="mt-16 flex items-center gap-4 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+            <span className="h-px w-14 bg-brand/60" />
+            <span>Human connection, considered</span>
+          </div>
+        </section>
 
-          <header className="mb-5 text-center">
-            <h1 className="font-display text-[32px] font-bold leading-tight tracking-tight">
-              {mode === "in" ? "Welcome back" : "Make your Pulse"}
-            </h1>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              {mode === "in"
-                ? "Your conversations are waiting."
-                : "A name, a handle, and you're alive here."}
-            </p>
-          </header>
+        <motion.section
+          layout
+          className="surface-elevated relative rounded-[30px] border border-white/10 p-6 sm:p-8"
+        >
+          <div className="mb-8 flex items-start justify-between gap-4">
+            <div>
+              <p className="font-display text-2xl font-semibold tracking-[-0.05em]">
+                {mode === "in" ? "Welcome back" : "Find your people"}
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {mode === "in"
+                  ? "Your space is ready when you are."
+                  : "Start with a name. Make it yours."}
+              </p>
+            </div>
+            <span className="grid h-10 w-10 place-items-center rounded-[14px] border border-brand/25 bg-brand/10 text-brand">
+              <span className="font-display text-sm font-bold tracking-[-0.12em]">pu</span>
+            </span>
+          </div>
 
           {needsConfirm && (
-            <p className="mb-4 rounded-2xl border border-border bg-surface-2 p-3 text-center text-sm text-muted-foreground">
-              Check your email to confirm your account, then sign in.
+            <p className="mb-5 rounded-2xl border border-brand/20 bg-brand/8 p-3 text-sm leading-relaxed text-muted-foreground">
+              Check your email to confirm the account, then return here to sign in.
             </p>
           )}
-
-
 
           <form onSubmit={submit} className="space-y-3">
             <AnimatePresence initial={false} mode="popLayout">
@@ -151,29 +185,30 @@ function AuthPage() {
                   className="space-y-3 overflow-hidden"
                 >
                   <PulseField
-                    icon={<User className="h-4 w-4" />}
+                    icon={<UserRound />}
                     label="Display name"
                     value={form.name}
                     onChange={set("name")}
                     onFocus={() => setFocus("name")}
                     onBlur={() => setFocus(null)}
                     autoComplete="name"
+                    active={focus === "name"}
                   />
                   <PulseField
-                    icon={<AtSign className="h-4 w-4" />}
+                    icon={<AtSign />}
                     label="Username"
                     value={form.username}
                     onChange={set("username")}
                     onFocus={() => setFocus("username")}
                     onBlur={() => setFocus(null)}
                     autoComplete="username"
+                    active={focus === "username"}
                   />
                 </motion.div>
               )}
             </AnimatePresence>
-
             <PulseField
-              icon={<Mail className="h-4 w-4" />}
+              icon={<Mail />}
               label="Email"
               type="email"
               value={form.email}
@@ -181,9 +216,10 @@ function AuthPage() {
               onFocus={() => setFocus("email")}
               onBlur={() => setFocus(null)}
               autoComplete="email"
+              active={focus === "email"}
             />
             <PulseField
-              icon={<KeyRound className="h-4 w-4" />}
+              icon={<KeyRound />}
               label="Password"
               type="password"
               value={form.password}
@@ -191,74 +227,101 @@ function AuthPage() {
               onFocus={() => setFocus("password")}
               onBlur={() => setFocus(null)}
               autoComplete={mode === "in" ? "current-password" : "new-password"}
+              active={focus === "password"}
             />
-
             <motion.button
               type="submit"
               disabled={busy}
-              whileTap={{ scale: 0.96, y: 1 }}
+              whileTap={{ scale: 0.98, y: 1 }}
               transition={SPRING.press}
-              className="mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand text-[15px] font-semibold text-brand-foreground shadow-soft disabled:opacity-70"
+              className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-[15px] bg-brand text-[15px] font-semibold text-brand-foreground shadow-soft press disabled:opacity-70"
             >
               <AnimatePresence mode="wait" initial={false}>
                 {done ? (
-                  <motion.span key="ok" initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="flex items-center gap-2">
-                    <Check className="h-5 w-5" /> You're in
+                  <motion.span
+                    key="ok"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2"
+                  >
+                    <Check className="h-4 w-4" /> You’re in
                   </motion.span>
                 ) : (
-                  <motion.span key="go" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2">
-                    {mode === "in" ? "Sign in" : "Create my Pulse"}
-                    <ArrowRight className="h-4 w-4" />
+                  <motion.span
+                    key="go"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2"
+                  >
+                    {mode === "in" ? "Sign in" : "Create account"}
+                    <ArrowUpRight className="h-4 w-4" />
                   </motion.span>
                 )}
               </AnimatePresence>
             </motion.button>
           </form>
 
-          <div className="my-4 flex items-center gap-3 text-[11px] uppercase tracking-widest text-muted-foreground">
-            <span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" />
+          <div className="my-6 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+            <span className="h-px flex-1 bg-white/10" /> or{" "}
+            <span className="h-px flex-1 bg-white/10" />
           </div>
-
-          <motion.button
+          <button
             type="button"
             onClick={google}
-            whileTap={{ scale: 0.96, y: 1 }}
-            transition={SPRING.press}
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-full border border-border bg-surface-2 text-sm font-medium press"
+            className="flex h-11 w-full items-center justify-center rounded-[14px] border border-white/10 bg-white/[0.035] text-sm font-semibold text-foreground press"
           >
             Continue with Google
-          </motion.button>
+          </button>
 
-          <p className="mt-5 text-center text-sm text-muted-foreground">
-            {mode === "in" ? "New to Pulse?" : "Already have a Pulse?"}{" "}
+          <div className="mt-6 flex items-center justify-between gap-3 text-sm text-muted-foreground">
             <button
               type="button"
-              onClick={() => setMode((m) => (m === "in" ? "up" : "in"))}
-              className="font-semibold text-brand underline-offset-4 hover:underline"
+              onClick={() => setMode((current) => (current === "in" ? "up" : "in"))}
+              className="font-semibold text-brand hover:underline underline-offset-4"
             >
-              {mode === "in" ? "Create an account" : "Sign in"}
+              {mode === "in" ? "Create an account" : "Sign in instead"}
             </button>
-          </p>
-        </section>
+            {mode === "in" && (
+              <button
+                type="button"
+                onClick={() => void forgotPassword()}
+                className="text-xs hover:text-foreground"
+              >
+                Forgot password?
+              </button>
+            )}
+          </div>
+        </motion.section>
       </main>
     </div>
-
   );
 }
 
 function PulseField({
   icon,
   label,
+  active,
   className,
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & { icon: React.ReactNode; label: string }) {
+}: React.InputHTMLAttributes<HTMLInputElement> & {
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+}) {
   return (
     <label className="block">
-      <span className="mb-1.5 ml-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <span className="mb-1.5 ml-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
         {label}
       </span>
-      <span className="flex items-center gap-2 rounded-2xl border border-input bg-surface-2 px-3 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/25">
-        <span className="text-muted-foreground">{icon}</span>
+      <span
+        className={cn(
+          "flex items-center gap-3 rounded-[14px] border bg-white/[0.035] px-3 transition-colors",
+          active ? "border-brand/60 ring-2 ring-brand/10" : "border-white/10",
+        )}
+      >
+        <span className={cn("text-muted-foreground transition-colors", active && "text-brand")}>
+          {icon}
+        </span>
         <input
           {...props}
           required
