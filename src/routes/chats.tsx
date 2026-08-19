@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Mic, Search, VolumeX, Image as ImageIcon, Plus } from "lucide-react";
 import { AppShell } from "@/components/pulse/AppShell";
@@ -51,26 +51,37 @@ function ChatsPage() {
     queryFn: () => listConversations(user.id),
   });
 
-  // Realtime: new messages nudge the list and re-order it with layout springs
+  // Realtime: only messages in conversations the user currently has loaded can nudge the list.
   useEffect(() => {
+    const conversationIds = (data ?? []).map((conversation) => conversation.id);
+    if (conversationIds.length === 0) return;
+
     const channel = supabase
       .channel(`chatlist:${user.id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () =>
-        queryClient.invalidateQueries({ queryKey: ["conversations", user.id] }),
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=in.(${conversationIds.join(",")})`,
+        },
+        () => queryClient.invalidateQueries({ queryKey: ["conversations", user.id] }),
       )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user.id, queryClient]);
+  }, [data, user.id, queryClient]);
 
   const rows = useMemo(() => {
     const list = data ?? [];
     const t = term.trim().toLowerCase();
     if (!t) return list;
-    return list.filter((c) =>
-      (c.name ?? c.other?.display_name ?? "").toLowerCase().includes(t) ||
-      (c.lastMessage?.body ?? "").toLowerCase().includes(t),
+    return list.filter(
+      (c) =>
+        (c.name ?? c.other?.display_name ?? "").toLowerCase().includes(t) ||
+        (c.lastMessage?.body ?? "").toLowerCase().includes(t),
     );
   }, [data, term]);
 
@@ -86,10 +97,21 @@ function ChatsPage() {
             <div>
               <h1 className="font-display text-[26px] font-bold tracking-tight">Chats</h1>
               <p className="text-xs text-muted-foreground">
-                {profile?.display_name ? `Signed in as ${profile.display_name}` : "Alive and listening"}
+                {profile?.display_name
+                  ? `Signed in as ${profile.display_name}`
+                  : "Alive and listening"}
               </p>
             </div>
-            <PulseAvatar profile={profile} size="md" showPresence showMood />
+            <div className="flex items-center gap-2">
+              <Link
+                to="/search"
+                aria-label="Search people and messages"
+                className="grid h-10 w-10 place-items-center rounded-full press hover:bg-surface-2"
+              >
+                <Search className="h-5 w-5" />
+              </Link>
+              <PulseAvatar profile={profile} size="md" showPresence showMood />
+            </div>
           </div>
           <label className="mt-3 flex items-center gap-2 rounded-full border border-input bg-surface-2 px-3">
             <Search className="h-4 w-4 text-muted-foreground" />

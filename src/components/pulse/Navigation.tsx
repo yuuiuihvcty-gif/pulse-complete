@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { CircleUser, MessageCircle, Phone, Sparkles, Users } from "lucide-react";
+import { Bell, CircleUser, MessageCircle, Phone, Sparkles, Users } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -8,6 +8,7 @@ const items = [
   { to: "/chats", label: "Chats", icon: MessageCircle },
   { to: "/contacts", label: "Contacts", icon: Users },
   { to: "/updates", label: "Updates", icon: Sparkles },
+  { to: "/notifications", label: "Alerts", icon: Bell },
   { to: "/calls", label: "Calls", icon: Phone },
   { to: "/profile", label: "You", icon: CircleUser },
 ] as const;
@@ -17,7 +18,7 @@ export function BottomNav({ unread }: { unread?: number }) {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur-xl md:hidden">
-      <ul className="mx-auto grid max-w-lg grid-cols-5">
+      <ul className="mx-auto grid max-w-lg grid-cols-6">
         {items.map(({ to, label, icon: Icon }) => {
           const active = pathname === to || pathname.startsWith(`${to}/`);
           return (
@@ -70,7 +71,10 @@ export function SideRail({ unread }: { unread?: number }) {
 
   return (
     <aside className="hidden w-20 shrink-0 flex-col items-center gap-2 border-r border-border bg-surface/70 py-5 md:flex">
-      <Link to="/chats" className="mb-4 grid h-10 w-10 place-items-center rounded-2xl bg-brand text-brand-foreground shadow-soft">
+      <Link
+        to="/chats"
+        className="mb-4 grid h-10 w-10 place-items-center rounded-2xl bg-brand text-brand-foreground shadow-soft"
+      >
         <span className="font-display text-lg font-bold">P</span>
       </Link>
       {items.map(({ to, label, icon: Icon }) => {

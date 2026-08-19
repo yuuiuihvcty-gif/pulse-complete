@@ -14,7 +14,9 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CallsRouteImport } from './routes/calls'
 import { Route as ChatsRouteImport } from './routes/chats'
 import { Route as ContactsRouteImport } from './routes/contacts'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as ChatsIdRouteImport } from './routes/chats_.$id'
@@ -44,9 +46,19 @@ const ContactsRoute = ContactsRouteImport.update({
   path: '/contacts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -71,7 +83,9 @@ export interface FileRoutesByFullPath {
   '/calls': typeof CallsRoute
   '/chats': typeof ChatsRoute
   '/contacts': typeof ContactsRoute
+  '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
+  '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/updates': typeof UpdatesRoute
   '/chats/$id': typeof ChatsIdRoute
@@ -82,7 +96,9 @@ export interface FileRoutesByTo {
   '/calls': typeof CallsRoute
   '/chats': typeof ChatsRoute
   '/contacts': typeof ContactsRoute
+  '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
+  '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/updates': typeof UpdatesRoute
   '/chats/$id': typeof ChatsIdRoute
@@ -94,7 +110,9 @@ export interface FileRoutesById {
   '/calls': typeof CallsRoute
   '/chats': typeof ChatsRoute
   '/contacts': typeof ContactsRoute
+  '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
+  '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/updates': typeof UpdatesRoute
   '/chats_/$id': typeof ChatsIdRoute
@@ -107,7 +125,9 @@ export interface FileRouteTypes {
     | '/calls'
     | '/chats'
     | '/contacts'
+    | '/notifications'
     | '/profile'
+    | '/search'
     | '/settings'
     | '/updates'
     | '/chats/$id'
@@ -118,7 +138,9 @@ export interface FileRouteTypes {
     | '/calls'
     | '/chats'
     | '/contacts'
+    | '/notifications'
     | '/profile'
+    | '/search'
     | '/settings'
     | '/updates'
     | '/chats/$id'
@@ -129,7 +151,9 @@ export interface FileRouteTypes {
     | '/calls'
     | '/chats'
     | '/contacts'
+    | '/notifications'
     | '/profile'
+    | '/search'
     | '/settings'
     | '/updates'
     | '/chats_/$id'
@@ -141,7 +165,9 @@ export interface RootRouteChildren {
   CallsRoute: typeof CallsRoute
   ChatsRoute: typeof ChatsRoute
   ContactsRoute: typeof ContactsRoute
+  NotificationsRoute: typeof NotificationsRoute
   ProfileRoute: typeof ProfileRoute
+  SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
   UpdatesRoute: typeof UpdatesRoute
   ChatsIdRoute: typeof ChatsIdRoute
@@ -184,11 +210,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -221,7 +261,9 @@ const rootRouteChildren: RootRouteChildren = {
   CallsRoute: CallsRoute,
   ChatsRoute: ChatsRoute,
   ContactsRoute: ContactsRoute,
+  NotificationsRoute: NotificationsRoute,
   ProfileRoute: ProfileRoute,
+  SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
   UpdatesRoute: UpdatesRoute,
   ChatsIdRoute: ChatsIdRoute,

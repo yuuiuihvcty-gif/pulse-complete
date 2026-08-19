@@ -21,6 +21,7 @@ export type Message = {
   media_url: string | null;
   media_meta: Record<string, unknown>;
   reply_to: string | null;
+  forwarded_from: string | null;
   pinned: boolean;
   edited_at: string | null;
   deleted_at: string | null;

@@ -135,11 +135,12 @@ export function MessageBubble({
   };
 
   const renderBody = () => {
-    if (deleted)
-      return <span className="text-sm italic opacity-70">This message was deleted</span>;
+    if (deleted) return <span className="text-sm italic opacity-70">This message was deleted</span>;
     if (!message.body) return null;
     if (searchTerm && searchTerm.length > 1) {
-      const parts = message.body.split(new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi"));
+      const parts = message.body.split(
+        new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi"),
+      );
       return (
         <span className="whitespace-pre-wrap break-words text-[15px] leading-relaxed">
           {parts.map((p, i) =>
@@ -179,7 +180,10 @@ export function MessageBubble({
         backgroundColor: highlight ? "var(--color-brand-soft)" : "transparent",
       }}
       transition={{ type: "spring", stiffness: 340, damping: 26, mass: 0.6 }}
-      className={cn("group relative flex gap-2 rounded-3xl px-1 py-0.5", mine ? "justify-end" : "justify-start")}
+      className={cn(
+        "group relative flex gap-2 rounded-3xl px-1 py-0.5",
+        mine ? "justify-end" : "justify-start",
+      )}
     >
       {!mine && showAvatar && (
         <span className="mt-auto grid h-7 w-7 shrink-0 place-items-center rounded-full bg-secondary text-[10px] font-semibold">
@@ -187,7 +191,9 @@ export function MessageBubble({
         </span>
       )}
 
-      <div className={cn("relative max-w-[86%] sm:max-w-[70%]", mine ? "items-end" : "items-start")}>
+      <div
+        className={cn("relative max-w-[86%] sm:max-w-[70%]", mine ? "items-end" : "items-start")}
+      >
         <motion.div
           onPointerDown={startPress}
           onPointerUp={cancelPress}
@@ -209,6 +215,11 @@ export function MessageBubble({
               <Pin className="h-3 w-3" /> Pinned
             </span>
           )}
+          {message.forwarded_from && !deleted && (
+            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide opacity-70">
+              Forwarded message
+            </span>
+          )}
 
           {replyTo && (
             <button
@@ -216,7 +227,9 @@ export function MessageBubble({
               onClick={() => actions.onJumpTo?.(replyTo.id)}
               className={cn(
                 "mb-2 block w-full rounded-xl border-l-2 px-2 py-1 text-left",
-                mine ? "border-bubble-out-foreground/60 bg-bubble-out-foreground/12" : "border-brand bg-secondary",
+                mine
+                  ? "border-bubble-out-foreground/60 bg-bubble-out-foreground/12"
+                  : "border-brand bg-secondary",
               )}
             >
               <span className="block text-[11px] font-semibold opacity-80">
@@ -275,7 +288,12 @@ export function MessageBubble({
         </motion.div>
 
         {Object.keys(grouped).length > 0 && (
-          <div className={cn("-mt-2 flex flex-wrap gap-1 px-1", mine ? "justify-end" : "justify-start")}>
+          <div
+            className={cn(
+              "-mt-2 flex flex-wrap gap-1 px-1",
+              mine ? "justify-end" : "justify-start",
+            )}
+          >
             {Object.entries(grouped).map(([emoji, count]) => (
               <motion.button
                 key={emoji}

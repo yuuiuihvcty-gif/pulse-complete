@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, ChevronDown, Phone, Search, Video, X } from "lucide-react";
 import { toast } from "sonner";
@@ -22,11 +22,13 @@ import type { Message, Reaction } from "@/lib/types";
 import { PageBackground } from "@/components/pulse/PageBackground";
 import bgchatBg from "@/assets/bg-chat.jpeg.asset.json";
 import {
-
   deleteMessage,
   editMessage,
+  forwardMessage,
   getConversation,
+  listConversations,
   listMessages,
+  PAGE_SIZE,
   listReactions,
   listReads,
   markConversationRead,
@@ -72,14 +74,22 @@ function Thread() {
   const [term, setTerm] = useState("");
   const [highlight, setHighlight] = useState<string | null>(null);
   const [viewer, setViewer] = useState<{ items: MediaItem[]; index: number } | null>(null);
+  const [forwarding, setForwarding] = useState<Message | null>(null);
   const [atBottom, setAtBottom] = useState(true);
+  const [hasOlder, setHasOlder] = useState(true);
+  const [loadingOlder, setLoadingOlder] = useState(false);
 
   const scroller = useRef<HTMLDivElement | null>(null);
+  const restoreScroll = useRef<{ height: number; top: number } | null>(null);
   const bottom = useRef<HTMLDivElement | null>(null);
 
   const conversation = useQuery({
     queryKey: ["conversation", id, user.id],
     queryFn: () => getConversation(id, user.id),
+  });
+  const conversationList = useQuery({
+    queryKey: ["conversations", user.id],
+    queryFn: () => listConversations(user.id),
   });
   const messages = useQuery({
     queryKey: ["messages", id],
@@ -89,9 +99,52 @@ function Thread() {
     queryKey: ["reactions", id],
     queryFn: () => listReactions(id),
   });
+
+  useEffect(() => {
+    setHasOlder(true);
+    setLoadingOlder(false);
+    restoreScroll.current = null;
+  }, [id]);
+
+  useEffect(() => {
+    const snapshot = restoreScroll.current;
+    const el = scroller.current;
+    if (!snapshot || !el) return;
+    el.scrollTop = el.scrollHeight - snapshot.height + snapshot.top;
+    restoreScroll.current = null;
+  }, [messages.data]);
+
+  const loadOlder = useCallback(async () => {
+    const current = messages.data ?? [];
+    const oldest = current[0];
+    const el = scroller.current;
+    if (loadingOlder || !hasOlder || !oldest || !el) return;
+
+    restoreScroll.current = { height: el.scrollHeight, top: el.scrollTop };
+    setLoadingOlder(true);
+    try {
+      const older = await listMessages(id, oldest.created_at);
+      if (older.length < PAGE_SIZE) setHasOlder(false);
+      if (older.length > 0) {
+        queryClient.setQueryData<Message[]>(["messages", id], (existing = []) => {
+          const existingIds = new Set(existing.map((message) => message.id));
+          return [...older.filter((message) => !existingIds.has(message.id)), ...existing];
+        });
+      }
+    } catch {
+      restoreScroll.current = null;
+      toast.error("Couldn't load older messages");
+    } finally {
+      setLoadingOlder(false);
+    }
+  }, [hasOlder, id, loadingOlder, messages.data, queryClient]);
   const reads = useQuery({ queryKey: ["reads", id], queryFn: () => listReads(id) });
 
   const other = conversation.data?.other ?? null;
+  const forwardTargets = useMemo(
+    () => (conversationList.data ?? []).filter((target) => target.id !== id),
+    [conversationList.data, id],
+  );
   const live = useConversationLive(id, user.id, profile?.display_name ?? "Someone");
 
   const invalidate = useCallback(
@@ -99,26 +152,49 @@ function Thread() {
     [queryClient],
   );
 
-  // Realtime message + reaction stream for this conversation
+  // Realtime message + reaction stream for this conversation.
   useEffect(() => {
+    const messageIds = (messages.data ?? []).map((message) => message.id);
     const channel = supabase
       .channel(`thread:${id}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "messages", filter: `conversation_id=eq.${id}` },
-        () => invalidate([["messages", id], ["conversations", user.id]]),
-      )
-      .on("postgres_changes", { event: "*", schema: "public", table: "message_reactions" }, () =>
-        invalidate([["reactions", id]]),
-      )
-      .on("postgres_changes", { event: "*", schema: "public", table: "message_reads" }, () =>
-        invalidate([["reads", id]]),
-      )
-      .subscribe();
+        () =>
+          invalidate([
+            ["messages", id],
+            ["conversations", user.id],
+          ]),
+      );
+
+    messageIds.forEach((messageId) => {
+      channel.on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "message_reactions",
+          filter: `message_id=eq.${messageId}`,
+        },
+        () => invalidate([["reactions", id]]),
+      );
+      channel.on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "message_reads",
+          filter: `message_id=eq.${messageId}`,
+        },
+        () => invalidate([["reads", id]]),
+      );
+    });
+
+    channel.subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [id, user.id, invalidate]);
+  }, [id, user.id, invalidate, messages.data]);
 
   // Mark read whenever the thread is open and new messages land
   useEffect(() => {
@@ -137,7 +213,10 @@ function Thread() {
     onSuccess: () => {
       setReplyTo(null);
       setAtBottom(true);
-      invalidate([["messages", id], ["conversations", user.id]]);
+      invalidate([
+        ["messages", id],
+        ["conversations", user.id],
+      ]);
     },
     onError: () => toast.error("That message didn't make it. Try again?"),
   });
@@ -162,7 +241,9 @@ function Thread() {
 
   const jumpTo = (messageId: string) => {
     setHighlight(messageId);
-    document.getElementById(`msg-${messageId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    document
+      .getElementById(`msg-${messageId}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
     window.setTimeout(() => setHighlight(null), 1400);
   };
 
@@ -180,13 +261,18 @@ function Thread() {
     },
     onDelete: () => {
       void deleteMessage(m.id)
-        .then(() => invalidate([["messages", id], ["conversations", user.id]]))
+        .then(() =>
+          invalidate([
+            ["messages", id],
+            ["conversations", user.id],
+          ]),
+        )
         .catch(() => toast.error("Couldn't delete that message"));
     },
     onCopy: () => {
       void navigator.clipboard.writeText(m.body ?? "").then(() => toast.success("Copied"));
     },
-    onForward: () => toast.info("Pick a chat from Contacts to forward there"),
+    onForward: () => setForwarding(m),
     onPin: () => {
       void setPinned(m.id, !m.pinned).then(() => invalidate([["messages", id]]));
     },
@@ -202,7 +288,12 @@ function Thread() {
       const target = editing;
       setEditing(null);
       void editMessage(target.id, text)
-        .then(() => invalidate([["messages", id], ["conversations", user.id]]))
+        .then(() =>
+          invalidate([
+            ["messages", id],
+            ["conversations", user.id],
+          ]),
+        )
         .catch(() => toast.error("Couldn't save that edit"));
       return;
     }
@@ -244,10 +335,7 @@ function Thread() {
     return list.filter((m) => (m.body ?? "").toLowerCase().includes(t));
   }, [messages.data, term, searchOpen]);
 
-  const byId = useMemo(
-    () => new Map((messages.data ?? []).map((m) => [m.id, m])),
-    [messages.data],
-  );
+  const byId = useMemo(() => new Map((messages.data ?? []).map((m) => [m.id, m])), [messages.data]);
 
   const activity =
     live.recording.length > 0
@@ -273,7 +361,10 @@ function Thread() {
           <PulseAvatar profile={other} size="md" showPresence showMood />
         </motion.span>
         <div className="min-w-0 flex-1">
-          <motion.p layoutId={`title-${id}`} className="truncate font-display text-[16px] font-semibold">
+          <motion.p
+            layoutId={`title-${id}`}
+            className="truncate font-display text-[16px] font-semibold"
+          >
             {conversation.data?.name ?? other?.display_name ?? "Conversation"}
           </motion.p>
           <div className="h-4 text-xs text-muted-foreground">
@@ -348,7 +439,11 @@ function Thread() {
           const el = e.currentTarget;
           setAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 120);
         }}
-        className={cn("relative flex-1 overflow-y-auto scrollbar-slim", `wp-${settings?.wallpaper ?? "aurora"}`, "wallpaper")}
+        className={cn(
+          "relative flex-1 overflow-y-auto scrollbar-slim",
+          `wp-${settings?.wallpaper ?? "aurora"}`,
+          "wallpaper",
+        )}
       >
         {messages.isLoading ? (
           <BubbleSkeleton />
@@ -362,9 +457,23 @@ function Thread() {
           />
         ) : (
           <div className="mx-auto w-full max-w-3xl space-y-1 px-2 py-4">
+            {hasOlder && !searchOpen && (
+              <div className="flex justify-center pb-3">
+                <button
+                  type="button"
+                  onClick={() => void loadOlder()}
+                  disabled={loadingOlder}
+                  className="rounded-full border border-border bg-surface/80 px-4 py-2 text-xs font-semibold text-muted-foreground shadow-soft backdrop-blur press hover:bg-surface-2 disabled:cursor-wait disabled:opacity-60"
+                >
+                  {loadingOlder ? "Loading older messages…" : "Load older messages"}
+                </button>
+              </div>
+            )}
             {visible.map((m, i) => {
               const prev = visible[i - 1];
-              const newDay = !prev || new Date(prev.created_at).toDateString() !== new Date(m.created_at).toDateString();
+              const newDay =
+                !prev ||
+                new Date(prev.created_at).toDateString() !== new Date(m.created_at).toDateString();
               return (
                 <div key={m.id}>
                   {newDay && (
@@ -378,7 +487,7 @@ function Thread() {
                     message={m}
                     mine={m.sender_id === user.id}
                     sender={m.sender_id === user.id ? profile : other}
-                    replyTo={m.reply_to ? byId.get(m.reply_to) ?? null : null}
+                    replyTo={m.reply_to ? (byId.get(m.reply_to) ?? null) : null}
                     reactions={reactionsFor(m.id)}
                     seen={seenByOther(m)}
                     highlight={highlight === m.id}
@@ -426,6 +535,75 @@ function Thread() {
       />
 
       <AnimatePresence>
+        {forwarding && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 grid place-items-center bg-background/70 p-4 backdrop-blur-sm"
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Forward message"
+              className="w-full max-w-md rounded-3xl border border-border bg-surface p-4 shadow-float"
+            >
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="font-display text-lg font-semibold">Forward message</h2>
+                  <p className="text-xs text-muted-foreground">Choose a conversation.</p>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Close forward dialog"
+                  onClick={() => setForwarding(null)}
+                  className="grid h-9 w-9 place-items-center rounded-full press hover:bg-surface-2"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              {forwardTargets.length === 0 ? (
+                <p className="rounded-2xl bg-surface-2 p-4 text-sm text-muted-foreground">
+                  Start another conversation before forwarding.
+                </p>
+              ) : (
+                <ul className="max-h-[50vh] space-y-1 overflow-y-auto scrollbar-slim">
+                  {forwardTargets.map((target) => (
+                    <li key={target.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void forwardMessage({
+                            messageId: forwarding.id,
+                            conversationId: target.id,
+                            senderId: user.id,
+                          })
+                            .then(() => {
+                              toast.success("Message forwarded");
+                              setForwarding(null);
+                              void queryClient.invalidateQueries({
+                                queryKey: ["messages", target.id],
+                              });
+                              void queryClient.invalidateQueries({
+                                queryKey: ["conversations", user.id],
+                              });
+                            })
+                            .catch(() => toast.error("Couldn't forward that message"));
+                        }}
+                        className="flex w-full items-center gap-3 rounded-2xl p-2 text-left press hover:bg-surface-2"
+                      >
+                        <PulseAvatar profile={target.other} size="md" showPresence />
+                        <span className="min-w-0 flex-1 truncate text-sm font-semibold">
+                          {target.name ?? target.other?.display_name ?? "Conversation"}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </motion.div>
+        )}
         {viewer && (
           <MediaViewer items={viewer.items} index={viewer.index} onClose={() => setViewer(null)} />
         )}
