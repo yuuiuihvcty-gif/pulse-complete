@@ -299,10 +299,14 @@ export type Database = {
         Row: {
           actor_id: string | null;
           body: string | null;
+          call_id: string | null;
           conversation_id: string | null;
           created_at: string;
           id: string;
+          message_id: string | null;
           read: boolean;
+          story_id: string | null;
+          target_user_id: string | null;
           title: string;
           type: string;
           user_id: string;
@@ -310,10 +314,14 @@ export type Database = {
         Insert: {
           actor_id?: string | null;
           body?: string | null;
+          call_id?: string | null;
           conversation_id?: string | null;
           created_at?: string;
           id?: string;
+          message_id?: string | null;
           read?: boolean;
+          story_id?: string | null;
+          target_user_id?: string | null;
           title: string;
           type: string;
           user_id: string;
@@ -321,10 +329,14 @@ export type Database = {
         Update: {
           actor_id?: string | null;
           body?: string | null;
+          call_id?: string | null;
           conversation_id?: string | null;
           created_at?: string;
           id?: string;
+          message_id?: string | null;
           read?: boolean;
+          story_id?: string | null;
+          target_user_id?: string | null;
           title?: string;
           type?: string;
           user_id?: string;
@@ -345,6 +357,7 @@ export type Database = {
           avatar_url: string | null;
           created_at: string;
           display_name: string;
+          ide: string;
           id: string;
           is_online: boolean;
           last_seen: string;
@@ -358,6 +371,7 @@ export type Database = {
           avatar_url?: string | null;
           created_at?: string;
           display_name: string;
+          ide?: string;
           id: string;
           is_online?: boolean;
           last_seen?: string;
@@ -371,6 +385,7 @@ export type Database = {
           avatar_url?: string | null;
           created_at?: string;
           display_name?: string;
+          ide?: string;
           id?: string;
           is_online?: boolean;
           last_seen?: string;
@@ -383,6 +398,7 @@ export type Database = {
       };
       stories: {
         Row: {
+          audience: string;
           background: string | null;
           body: string | null;
           created_at: string;
@@ -393,6 +409,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          audience?: string;
           background?: string | null;
           body?: string | null;
           created_at?: string;
@@ -403,6 +420,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          audience?: string;
           background?: string | null;
           body?: string | null;
           created_at?: string;
@@ -410,6 +428,30 @@ export type Database = {
           id?: string;
           media_url?: string | null;
           type?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      story_replies: {
+        Row: {
+          body: string;
+          created_at: string;
+          id: string;
+          story_id: string;
+          user_id: string;
+        };
+        Insert: {
+          body: string;
+          created_at?: string;
+          id?: string;
+          story_id: string;
+          user_id: string;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          id?: string;
+          story_id?: string;
           user_id?: string;
         };
         Relationships: [];
@@ -573,6 +615,14 @@ export type Database = {
       heartbeat_call_session: {
         Args: { _call_id: string };
         Returns: boolean;
+      };
+      delete_my_account: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
+      export_my_account: {
+        Args: Record<PropertyKey, never>;
+        Returns: Json;
       };
     };
     Enums: {

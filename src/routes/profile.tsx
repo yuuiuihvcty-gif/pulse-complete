@@ -138,6 +138,9 @@ function ProfilePage() {
           </div>
           <p className="mt-4 font-display text-xl font-semibold">{profile?.display_name}</p>
           <p className="text-sm text-muted-foreground">@{profile?.username}</p>
+          <p className="mt-1 text-xs font-semibold tracking-[0.16em] text-brand">
+            IDE {profile?.ide}
+          </p>
         </motion.section>
 
         <section className="space-y-4 px-4">
@@ -178,9 +181,7 @@ function ProfilePage() {
                 <button
                   key={m.key}
                   type="button"
-                  onClick={() =>
-                    save.mutate({ mood: profile?.mood === m.key ? null : m.key })
-                  }
+                  onClick={() => save.mutate({ mood: profile?.mood === m.key ? null : m.key })}
                   className={cn(
                     "flex items-center gap-1.5 rounded-full border px-3 py-2 text-sm press",
                     profile?.mood === m.key

@@ -2,14 +2,22 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
-import { ImagePlus, Plus, Trash2, X } from "lucide-react";
+import { Heart, ImagePlus, Plus, Send, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/pulse/AppShell";
 import { BottomNav, SideRail } from "@/components/pulse/Navigation";
 import { PulseAvatar } from "@/components/pulse/PulseAvatar";
 import { EmptyState, ListSkeleton } from "@/components/pulse/EmptyState";
 import { useApp } from "@/lib/app-context";
-import { deleteStory, listStories, listStoryViews, postStory, viewStory } from "@/lib/api";
+import {
+  deleteStory,
+  listStories,
+  listStoryReplies,
+  listStoryViews,
+  postStory,
+  replyToStory,
+  viewStory,
+} from "@/lib/api";
 import { uploadMedia, validateFile } from "@/lib/media";
 import { useSignedUrl } from "@/hooks/use-signed-url";
 import { chatListTime } from "@/lib/format";
@@ -51,10 +59,14 @@ function UpdatesPage() {
   const [composing, setComposing] = useState(false);
   const [text, setText] = useState("");
   const [background, setBackground] = useState<string>("aurora");
+  const [audience, setAudience] = useState<"everyone" | "contacts" | "close_friends">("everyone");
   const [viewing, setViewing] = useState<{ story: Story; author: Profile | null } | null>(null);
 
   const stories = useQuery({ queryKey: ["stories"], queryFn: listStories });
-  const seen = useQuery({ queryKey: ["story-views", user.id], queryFn: () => listStoryViews(user.id) });
+  const seen = useQuery({
+    queryKey: ["story-views", user.id],
+    queryFn: () => listStoryViews(user.id),
+  });
 
   const refresh = () => {
     void queryClient.invalidateQueries({ queryKey: ["stories"] });
@@ -101,6 +113,7 @@ function UpdatesPage() {
         body: text.trim() || null,
         mediaUrl: path,
         background,
+        audience,
       });
     } catch {
       toast.error("Upload failed");
@@ -150,6 +163,24 @@ function UpdatesPage() {
                 className="w-full resize-none rounded-2xl border border-input bg-surface-2 px-4 py-3 text-sm outline-none focus:border-brand placeholder:text-muted-foreground"
               />
               <div className="mt-3 flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span>Who can see it</span>
+                  {(["everyone", "contacts", "close_friends"] as const).map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setAudience(option)}
+                      className={cn(
+                        "rounded-full border px-2.5 py-1 font-semibold capitalize press",
+                        audience === option
+                          ? "border-brand bg-brand-soft text-foreground"
+                          : "border-border",
+                      )}
+                    >
+                      {option.replace("_", " ")}
+                    </button>
+                  ))}
+                </div>
                 {BACKGROUNDS.map((b) => (
                   <button
                     key={b}
@@ -183,7 +214,13 @@ function UpdatesPage() {
                   type="button"
                   disabled={!text.trim() || post.isPending}
                   onClick={() =>
-                    post.mutate({ userId: user.id, type: "text", body: text.trim(), background })
+                    post.mutate({
+                      userId: user.id,
+                      type: "text",
+                      body: text.trim(),
+                      background,
+                      audience,
+                    })
                   }
                   className="h-10 rounded-full bg-brand px-5 text-sm font-semibold text-brand-foreground press disabled:opacity-50"
                 >
@@ -226,7 +263,7 @@ function UpdatesPage() {
                   />
                   <span className="min-w-0">
                     <span className="block truncate font-display text-[16px] font-semibold">
-                      {g.userId === user.id ? "Your update" : g.author?.display_name ?? "Someone"}
+                      {g.userId === user.id ? "Your update" : (g.author?.display_name ?? "Someone")}
                     </span>
                     <span className="block truncate text-[13px] text-muted-foreground">
                       {g.items.length} update{g.items.length > 1 ? "s" : ""} ·{" "}
@@ -263,6 +300,7 @@ function UpdatesPage() {
           <StoryViewer
             story={viewing.story}
             author={viewing.author}
+            viewerId={user.id}
             onClose={() => setViewing(null)}
           />
         )}
@@ -274,12 +312,37 @@ function UpdatesPage() {
 function StoryViewer({
   story,
   author,
+  viewerId,
   onClose,
 }: {
   story: Story;
   author: Profile | null;
+  viewerId: string;
   onClose: () => void;
 }) {
+  const [reply, setReply] = useState("");
+  const [reaction, setReaction] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const replies = useQuery({
+    queryKey: ["story-replies", story.id],
+    queryFn: () => listStoryReplies(story.id),
+  });
+  const sendReply = useMutation({
+    mutationFn: () => replyToStory(story.id, viewerId, reply),
+    onSuccess: () => {
+      setReply("");
+      void queryClient.invalidateQueries({ queryKey: ["story-replies", story.id] });
+      toast.success("Reply sent");
+    },
+    onError: () => toast.error("Couldn't send reply"),
+  });
+
+  const chooseReaction = (emoji: string) => {
+    setReaction((current) => (current === emoji ? null : emoji));
+    void viewStory(story.id, viewerId, reaction === emoji ? undefined : emoji).catch(() =>
+      toast.error("Couldn't save reaction"),
+    );
+  };
   const { url } = useSignedUrl(story.media_url);
 
   return (
@@ -303,7 +366,9 @@ function StoryViewer({
         <div className="mb-3 flex items-center gap-3">
           <PulseAvatar profile={author} size="md" />
           <div>
-            <p className="font-display text-sm font-semibold">{author?.display_name ?? "Someone"}</p>
+            <p className="font-display text-sm font-semibold">
+              {author?.display_name ?? "Someone"}
+            </p>
             <p className="text-xs text-muted-foreground">{chatListTime(story.created_at)}</p>
           </div>
         </div>
@@ -324,6 +389,50 @@ function StoryViewer({
         </div>
         {story.type !== "text" && story.body && (
           <p className="mt-3 text-center text-sm text-muted-foreground">{story.body}</p>
+        )}
+        <div className="mt-3 flex items-center justify-center gap-2">
+          {["❤️", "😂", "🔥", "😮", "👏"].map((emoji) => (
+            <button
+              key={emoji}
+              type="button"
+              onClick={() => chooseReaction(emoji)}
+              className={cn(
+                "grid h-9 w-9 place-items-center rounded-full border text-base press",
+                reaction === emoji ? "border-brand bg-brand-soft" : "border-border bg-surface-2",
+              )}
+              aria-label={`React ${emoji}`}
+            >
+              {emoji}
+            </button>
+          ))}
+          <Heart className="ml-1 h-4 w-4 text-muted-foreground" />
+        </div>
+        <div className="mt-3 flex items-center gap-2">
+          <input
+            value={reply}
+            onChange={(event) => setReply(event.target.value)}
+            maxLength={500}
+            placeholder="Reply to this update"
+            className="h-10 min-w-0 flex-1 rounded-full border border-input bg-surface-2 px-4 text-sm outline-none focus:border-brand"
+          />
+          <button
+            type="button"
+            disabled={!reply.trim() || sendReply.isPending}
+            onClick={() => sendReply.mutate()}
+            className="grid h-10 w-10 place-items-center rounded-full bg-brand text-brand-foreground press disabled:opacity-50"
+            aria-label="Send reply"
+          >
+            <Send className="h-4 w-4" />
+          </button>
+        </div>
+        {(replies.data ?? []).length > 0 && (
+          <div className="mt-3 max-h-24 space-y-1 overflow-y-auto rounded-2xl bg-surface-2 p-2">
+            {replies.data?.map((item) => (
+              <p key={item.id} className="text-xs text-muted-foreground">
+                {item.body}
+              </p>
+            ))}
+          </div>
         )}
       </div>
     </motion.div>

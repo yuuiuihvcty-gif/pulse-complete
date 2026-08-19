@@ -210,6 +210,11 @@ function ChatRow({ conv }: { conv: ConversationSummary }) {
               {name}
             </motion.span>
             {conv.muted && <VolumeX className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
+            {!conv.is_group && conv.other?.ide && (
+              <span className="shrink-0 text-[10px] font-semibold tracking-wide text-brand">
+                {conv.other.ide}
+              </span>
+            )}
           </span>
           <span className="mt-0.5 flex items-center gap-1.5 text-[13px] text-muted-foreground">
             {media && <ImageIcon className="h-3.5 w-3.5 text-brand" />}

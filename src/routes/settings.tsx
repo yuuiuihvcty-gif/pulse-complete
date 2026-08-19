@@ -1,11 +1,19 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download, KeyRound, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/pulse/AppShell";
 import { PulseAvatar } from "@/components/pulse/PulseAvatar";
 import { useApp } from "@/lib/app-context";
-import { getProfilesByIds, listBlocked, setBlocked } from "@/lib/api";
+import {
+  deleteMyAccount,
+  exportMyAccount,
+  getProfilesByIds,
+  listBlocked,
+  setBlocked,
+} from "@/lib/api";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import type { UserSettings } from "@/lib/types";
 import { PageBackground } from "@/components/pulse/PageBackground";
@@ -41,6 +49,8 @@ const WALLPAPERS = ["aurora", "plain", "mint", "dusk"] as const;
 function SettingsPage() {
   const { user, settings, saveSettings } = useApp();
   const queryClient = useQueryClient();
+  const [newPassword, setNewPassword] = useState("");
+  const [newEmail, setNewEmail] = useState("");
 
   const blocked = useQuery({
     queryKey: ["blocked", user.id],
@@ -108,6 +118,108 @@ function SettingsPage() {
           {toggle("show_online", "Show when I'm online")}
           {toggle("show_last_seen", "Show my last seen")}
           {toggle("read_receipts", "Send read receipts")}
+        </Section>
+
+        <Section title="Account">
+          <div className="space-y-3 p-3">
+            <p className="text-sm text-muted-foreground">
+              Manage your sign-in details and keep a copy of your Pulse data.
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                value={newEmail}
+                onChange={(event) => setNewEmail(event.target.value)}
+                placeholder="New email address"
+                className="h-10 min-w-0 flex-1 rounded-2xl border border-input bg-surface-2 px-3 text-sm outline-none focus:border-brand"
+              />
+              <button
+                type="button"
+                disabled={!newEmail.trim()}
+                onClick={() =>
+                  void supabase.auth
+                    .updateUser({ email: newEmail.trim() })
+                    .then(({ error }) =>
+                      error
+                        ? toast.error(error.message)
+                        : toast.success("Check your new email to confirm the change"),
+                    )
+                }
+                className="grid h-10 w-10 place-items-center rounded-2xl bg-brand text-brand-foreground press disabled:opacity-50"
+                aria-label="Change email"
+              >
+                <KeyRound className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(event) => setNewPassword(event.target.value)}
+                placeholder="New password"
+                minLength={8}
+                className="h-10 min-w-0 flex-1 rounded-2xl border border-input bg-surface-2 px-3 text-sm outline-none focus:border-brand"
+              />
+              <button
+                type="button"
+                disabled={newPassword.length < 8}
+                onClick={() =>
+                  void supabase.auth
+                    .updateUser({ password: newPassword })
+                    .then(({ error }) =>
+                      error
+                        ? toast.error(error.message)
+                        : (setNewPassword(""), toast.success("Password updated")),
+                    )
+                }
+                className="grid h-10 w-10 place-items-center rounded-2xl border border-border press disabled:opacity-50"
+                aria-label="Change password"
+              >
+                <KeyRound className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  void exportMyAccount()
+                    .then((data) => {
+                      const blob = new Blob([JSON.stringify(data, null, 2)], {
+                        type: "application/json",
+                      });
+                      const url = URL.createObjectURL(blob);
+                      const anchor = document.createElement("a");
+                      anchor.href = url;
+                      anchor.download = "pulse-account-export.json";
+                      anchor.click();
+                      URL.revokeObjectURL(url);
+                      toast.success("Account export downloaded");
+                    })
+                    .catch(() => toast.error("Couldn't export your account"))
+                }
+                className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-xs font-semibold press hover:bg-surface-2"
+              >
+                <Download className="h-3.5 w-3.5" /> Export data
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (
+                    !window.confirm("Delete your Pulse account permanently? This cannot be undone.")
+                  )
+                    return;
+                  void deleteMyAccount()
+                    .then(() => {
+                      window.location.href = "/auth";
+                    })
+                    .catch(() => toast.error("Couldn't delete your account"));
+                }}
+                className="inline-flex items-center gap-2 rounded-full border border-destructive/40 px-3 py-2 text-xs font-semibold text-destructive press hover:bg-destructive/10"
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Delete account
+              </button>
+            </div>
+          </div>
         </Section>
 
         <Section title="Blocked people">

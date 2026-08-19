@@ -6,13 +6,15 @@ import type {
   ConversationSummary,
   Message,
   MessageType,
+  Notification,
   Profile,
   Reaction,
   Story,
+  StoryReply,
   UserSettings,
 } from "@/lib/types";
 
-const PROFILE_COLS = "id,username,display_name,avatar_url,about,phone,mood,is_online,last_seen";
+const PROFILE_COLS = "id,ide,username,display_name,avatar_url,about,phone,mood,is_online,last_seen";
 
 function unwrap<T>(res: { data: T | null; error: { message: string } | null }): T {
   if (res.error) throw new Error(res.error.message);
@@ -345,11 +347,15 @@ export async function removeContact(me: string, contactId: string) {
 export async function searchProfiles(term: string, me: string) {
   const t = term.trim();
   if (!t) return [];
+  const safeTerm = t.replace(/[^a-zA-Z0-9 _-]/g, " ").trim();
+  if (!safeTerm) return [];
+  const filters = [`display_name.ilike.%${safeTerm}%`, `username.ilike.%${safeTerm}%`];
+  if (/^\d{6}$/.test(safeTerm)) filters.push(`ide.eq.${safeTerm}`);
   const rows = (unwrap(
     await supabase
       .from("profiles")
       .select(PROFILE_COLS)
-      .or(`display_name.ilike.%${t}%,username.ilike.%${t}%`)
+      .or(filters.join(","))
       .neq("id", me)
       .limit(20),
   ) ?? []) as Profile[];
@@ -389,7 +395,7 @@ export async function listStories() {
   const rows = (unwrap(
     await supabase
       .from("stories")
-      .select(`id,user_id,type,body,media_url,background,created_at,expires_at`)
+      .select(`id,user_id,type,body,media_url,background,audience,created_at,expires_at`)
       .gt("expires_at", new Date().toISOString())
       .order("created_at", { ascending: true }),
   ) ?? []) as Story[];
@@ -406,6 +412,7 @@ export async function postStory(input: {
   body?: string | null;
   mediaUrl?: string | null;
   background?: string;
+  audience?: "everyone" | "contacts" | "close_friends";
 }) {
   unwrap(
     await supabase
@@ -416,6 +423,7 @@ export async function postStory(input: {
         body: input.body ?? null,
         media_url: input.mediaUrl ?? null,
         background: input.background ?? "aurora",
+        audience: input.audience ?? "everyone",
       })
       .select("id"),
   );
@@ -443,6 +451,27 @@ export async function deleteStory(id: string) {
   unwrap(await supabase.from("stories").delete().eq("id", id).select("id"));
 }
 
+export async function listStoryReplies(storyId: string) {
+  return (unwrap(
+    await supabase
+      .from("story_replies")
+      .select("id,story_id,user_id,body,created_at")
+      .eq("story_id", storyId)
+      .order("created_at", { ascending: true })
+      .limit(100),
+  ) ?? []) as StoryReply[];
+}
+
+export async function replyToStory(storyId: string, userId: string, body: string) {
+  return unwrap(
+    await supabase
+      .from("story_replies")
+      .insert({ story_id: storyId, user_id: userId, body: body.trim() })
+      .select("id,story_id,user_id,body,created_at")
+      .single(),
+  ) as StoryReply;
+}
+
 /* ---------------- notifications ---------------- */
 
 export async function listNotifications(me: string) {
@@ -452,13 +481,18 @@ export async function listNotifications(me: string) {
       .select("*")
       .eq("user_id", me)
       .order("created_at", { ascending: false })
-      .limit(50),
+      .limit(100),
   ) ?? []) as Array<{
     id: string;
     type: string;
     title: string;
     body: string | null;
     conversation_id: string | null;
+    story_id: string | null;
+    message_id: string | null;
+    call_id: string | null;
+    target_user_id: string | null;
+    actor_id: string | null;
     read: boolean;
     created_at: string;
   }>;
@@ -485,8 +519,28 @@ export async function notify(input: {
   );
 }
 
+export async function markNotificationRead(id: string, me: string) {
+  unwrap(
+    await supabase
+      .from("notifications")
+      .update({ read: true })
+      .eq("id", id)
+      .eq("user_id", me)
+      .select("id"),
+  );
+}
+
 export async function markNotificationsRead(me: string) {
   await supabase.from("notifications").update({ read: true }).eq("user_id", me).eq("read", false);
+}
+
+export async function deleteMyAccount() {
+  unwrap(await supabase.rpc("delete_my_account"));
+  await supabase.auth.signOut();
+}
+
+export async function exportMyAccount() {
+  return unwrap(await supabase.rpc("export_my_account")) as Record<string, unknown>;
 }
 
 /* ---------------- calls ---------------- */

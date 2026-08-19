@@ -62,10 +62,7 @@ function ContactsPage() {
     enabled: term.trim().length >= 2,
   });
 
-  const savedIds = useMemo(
-    () => new Set((contacts.data ?? []).map((c) => c.id)),
-    [contacts.data],
-  );
+  const savedIds = useMemo(() => new Set((contacts.data ?? []).map((c) => c.id)), [contacts.data]);
 
   const filtered = useMemo(() => {
     const t = term.trim().toLowerCase();
@@ -209,7 +206,7 @@ function Row({
           {profile.display_name}
         </span>
         <span className="block truncate text-[13px] text-muted-foreground">
-          {profile.about?.trim() || `@${profile.username}`}
+          IDE {profile.ide} · {profile.about?.trim() || `@${profile.username}`}
         </span>
       </button>
       <button

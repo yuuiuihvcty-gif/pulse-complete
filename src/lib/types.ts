@@ -1,5 +1,6 @@
 export type Profile = {
   id: string;
+  ide: string;
   username: string;
   display_name: string;
   avatar_url: string | null;
@@ -57,6 +58,30 @@ export type Story = {
   background: string | null;
   created_at: string;
   expires_at: string;
+  audience?: "everyone" | "contacts" | "close_friends";
+};
+
+export type StoryReply = {
+  id: string;
+  story_id: string;
+  user_id: string;
+  body: string;
+  created_at: string;
+};
+
+export type Notification = {
+  id: string;
+  type: string;
+  title: string;
+  body: string | null;
+  actor_id: string | null;
+  conversation_id: string | null;
+  story_id: string | null;
+  message_id: string | null;
+  call_id: string | null;
+  target_user_id: string | null;
+  read: boolean;
+  created_at: string;
 };
 
 export type CallRecord = {

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { Bell, CheckCheck } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -7,7 +8,7 @@ import { AppShell } from "@/components/pulse/AppShell";
 import { BottomNav, SideRail } from "@/components/pulse/Navigation";
 import { EmptyState, ListSkeleton } from "@/components/pulse/EmptyState";
 import { useApp } from "@/lib/app-context";
-import { listNotifications, markNotificationsRead } from "@/lib/api";
+import { listNotifications, markNotificationRead, markNotificationsRead } from "@/lib/api";
 import { chatListTime } from "@/lib/format";
 import { PageBackground } from "@/components/pulse/PageBackground";
 import bgchatsBg from "@/assets/bg-chats.jpeg.asset.json";
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/notifications")({
 
 function NotificationsPage() {
   const { user } = useApp();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const notifications = useQuery({
     queryKey: ["notifications", user.id],
@@ -47,6 +49,22 @@ function NotificationsPage() {
 
   const rows = notifications.data ?? [];
   const unread = rows.filter((notification) => !notification.read).length;
+
+  const openNotification = async (notification: (typeof rows)[number]) => {
+    if (!notification.read) {
+      await markNotificationRead(notification.id, user.id);
+      void queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
+    }
+    if (notification.conversation_id) {
+      void navigate({ to: "/chats/$id", params: { id: notification.conversation_id } });
+    } else if (notification.call_id) {
+      void navigate({ to: "/calls" });
+    } else if (notification.story_id) {
+      void navigate({ to: "/updates" });
+    } else if (notification.target_user_id) {
+      void navigate({ to: "/contacts" });
+    }
+  };
 
   return (
     <div className="relative min-h-screen md:flex">
@@ -89,21 +107,27 @@ function NotificationsPage() {
                 key={notification.id}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`flex items-start gap-3 rounded-3xl p-3 ${notification.read ? "" : "bg-brand-soft/45"}`}
+                className={`rounded-3xl ${notification.read ? "" : "bg-brand-soft/45"}`}
               >
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-surface-2 text-brand">
-                  <Bell className="h-4 w-4" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="font-display text-[15px] font-semibold">{notification.title}</p>
-                  {notification.body && (
-                    <p className="mt-0.5 text-sm text-muted-foreground">{notification.body}</p>
-                  )}
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    {chatListTime(notification.created_at)}
-                  </p>
-                </div>
-                {!notification.read && <span className="mt-2 h-2 w-2 rounded-full bg-brand" />}
+                <button
+                  type="button"
+                  onClick={() => void openNotification(notification)}
+                  className="flex w-full items-start gap-3 rounded-3xl p-3 text-left press hover:bg-surface-2"
+                >
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-surface-2 text-brand">
+                    <Bell className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-display text-[15px] font-semibold">{notification.title}</p>
+                    {notification.body && (
+                      <p className="mt-0.5 text-sm text-muted-foreground">{notification.body}</p>
+                    )}
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      {chatListTime(notification.created_at)}
+                    </p>
+                  </div>
+                  {!notification.read && <span className="mt-2 h-2 w-2 rounded-full bg-brand" />}
+                </button>
               </motion.li>
             ))}
           </ul>

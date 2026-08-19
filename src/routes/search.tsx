@@ -68,7 +68,7 @@ function SearchPage() {
               autoFocus
               value={term}
               onChange={(event) => setTerm(event.target.value)}
-              placeholder="Search by name or message text"
+              placeholder="Search by name, IDE, or message text"
               className="h-11 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
           </label>
@@ -78,7 +78,7 @@ function SearchPage() {
           <EmptyState
             scene="search"
             title="Search people and messages."
-            description="Type at least two characters to search the Pulse you can access."
+            description="Search by name, username, six-digit IDE, or message text."
           />
         ) : query.isLoading ? (
           <ListSkeleton rows={5} />
@@ -115,7 +115,7 @@ function SearchPage() {
                             {person.display_name}
                           </span>
                           <span className="block truncate text-xs text-muted-foreground">
-                            @{person.username}
+                            IDE {person.ide} · @{person.username}
                           </span>
                         </span>
                         <UserRound className="h-4 w-4 text-muted-foreground" />
