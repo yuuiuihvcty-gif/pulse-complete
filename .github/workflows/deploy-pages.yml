@@ -1,0 +1,61 @@
+name: Deploy Pulse to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.20
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build static Pulse app
+        run: bun run build:pages
+        env:
+          VITE_SUPABASE_URL: https://eqrfpmwqsstuwkewuknp.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_w2VZqpaJm_a78tYtB8vPWQ_Jttm-95W
+          VITE_TURN_URLS: ${{ secrets.VITE_TURN_URLS }}
+          VITE_TURN_USERNAME: ${{ secrets.VITE_TURN_USERNAME }}
+          VITE_TURN_CREDENTIAL: ${{ secrets.VITE_TURN_CREDENTIAL }}
+
+      - name: Add SPA deep-link fallback
+        run: cp dist-pages/index.html dist-pages/404.html
+
+      - name: Configure Pages artifact
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-pages
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
